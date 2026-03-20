@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — CognitionTrade</title>
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/components.css">
+  <style>
+    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--bg); }
+    .login-bg { position: fixed; inset: 0; background-image: linear-gradient(var(--landing-grid) 1px, transparent 1px), linear-gradient(90deg, var(--landing-grid) 1px, transparent 1px); background-size: 48px 48px; pointer-events: none; }
+    .login-glow { position: fixed; top: -200px; left: 50%; transform: translateX(-50%); width: 600px; height: 500px; background: radial-gradient(ellipse, rgba(0,212,170,0.10) 0%, transparent 70%); pointer-events: none; }
+    .login-card { width: 420px; background: var(--bg2); border: 1px solid var(--border2); border-radius: 16px; padding: 40px; position: relative; z-index: 10; }
+    .login-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 32px; }
+    .login-logo-icon { width: 34px; height: 34px; background: var(--accent); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-family: var(--display); font-weight: 800; font-size: 14px; color: #000; }
+    .login-logo-text { font-family: var(--display); font-weight: 800; font-size: 16px; }
+    .login-title { font-family: var(--display); font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px; }
+    .login-sub   { font-size: 13px; color: var(--text2); margin-bottom: 28px; }
+    .error-msg   { background: rgba(255,71,87,0.08); border: 1px solid rgba(255,71,87,0.2); border-radius: 8px; padding: 10px 13px; font-size: 12.5px; color: var(--red); margin-bottom: 16px; display: none; }
+    .divider     { display: flex; align-items: center; gap: 12px; margin: 20px 0; }
+    .divider-line { flex: 1; height: 1px; background: var(--border2); }
+    .divider-text { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+    .social-btn  { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border2); background: transparent; color: var(--text2); font-size: 13px; cursor: pointer; font-family: var(--body); display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.15s; margin-bottom: 8px; }
+    .social-btn:hover { background: var(--bg3); color: var(--text); }
+    .login-footer { margin-top: 24px; text-align: center; font-size: 12px; color: var(--text3); }
+    .login-footer a { color: var(--accent); text-decoration: none; }
+    .demo-hint { background: rgba(0,212,170,0.06); border: 1px solid rgba(0,212,170,0.15); border-radius: 8px; padding: 10px 13px; font-size: 12px; color: var(--text2); margin-bottom: 20px; font-family: var(--mono); }
+    .demo-hint strong { color: var(--accent); }
+  </style>
+</head>
+<body>
+<div class="login-bg"></div>
+<div class="login-glow"></div>
+
+<div class="login-card">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;">
+    <div class="login-logo">
+      <div class="login-logo-icon">CT</div>
+      <div class="login-logo-text">CognitionTrade</div>
+    </div>
+    <div class="theme-toggle" data-action="toggle-theme" title="Toggle theme"><div class="theme-toggle-thumb"></div></div>
+  </div>
+
+  <div class="login-title">Welcome back</div>
+  <div class="login-sub">Sign in to your trading journal</div>
+
+  <div class="demo-hint">Demo: use any email + any password to enter</div>
+
+  <div class="error-msg" id="errorMsg">Invalid email or password. Please try again.</div>
+
+  <form id="loginForm" onsubmit="handleLogin(event)">
+    <div class="form-row">
+      <label class="form-label">Email</label>
+      <input class="form-input" type="email" id="emailInput" placeholder="jordan@example.com" required>
+    </div>
+    <div class="form-row">
+      <label class="form-label" style="display:flex;align-items:center;justify-content:space-between;">
+        Password
+        <a href="#" style="color:var(--accent);font-size:11px;text-decoration:none;">Forgot password?</a>
+      </label>
+      <input class="form-input" type="password" id="passInput" placeholder="••••••••" required>
+    </div>
+    <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:11px;font-size:14px;margin-top:4px;">Sign In →</button>
+  </form>
+
+  <div class="divider"><div class="divider-line"></div><div class="divider-text">or continue with</div><div class="divider-line"></div></div>
+
+  <button class="social-btn" onclick="handleLogin(null,'google')">
+    <svg width="16" height="16" viewBox="0 0 16 16"><path d="M15.68 8.18c0-.57-.05-1.11-.14-1.64H8v3.1h4.3a3.67 3.67 0 01-1.6 2.41v2h2.58c1.51-1.39 2.38-3.44 2.38-5.87z" fill="#4285F4"/><path d="M8 16c2.16 0 3.97-.72 5.3-1.94l-2.59-2a4.77 4.77 0 01-2.71.75 4.78 4.78 0 01-4.49-3.3H.84v2.06A8 8 0 008 16z" fill="#34A853"/><path d="M3.51 9.51A4.82 4.82 0 013.26 8c0-.52.09-1.03.25-1.51V4.43H.84A8 8 0 000 8c0 1.29.31 2.51.84 3.57l2.67-2.06z" fill="#FBBC05"/><path d="M8 3.19c1.22 0 2.31.42 3.17 1.24l2.38-2.38A8 8 0 00.84 4.43L3.51 6.49A4.78 4.78 0 018 3.19z" fill="#EA4335"/></svg>
+    Continue with Google
+  </button>
+  <button class="social-btn" onclick="handleLogin(null,'github')">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+    Continue with GitHub
+  </button>
+
+  <div class="login-footer">
+    Don't have an account? <a href="index.html">Sign up free</a>
+    &nbsp;·&nbsp; <a href="index.html">Back to home</a>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+<script>
+  function handleLogin(e, provider) {
+    if (e) e.preventDefault();
+    const email = provider ? `user@${provider}.com` : document.getElementById('emailInput').value;
+    const pass  = provider ? 'oauth' : document.getElementById('passInput').value;
+    const ok = CT.auth.login(email, pass);
+    if (ok) {
+      window.location.href = 'dashboard.html';
+    } else {
+      document.getElementById('errorMsg').style.display = 'block';
+    }
+  }
+</script>
+</body>
+</html>

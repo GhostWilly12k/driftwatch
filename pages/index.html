@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CognitionTrade — AI Trading Journal</title>
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/landing.css">
+</head>
+<body>
+<div class="landing">
+  <div class="landing-grid-bg"></div>
+  <div class="landing-glow"></div>
+
+  <nav class="landing-nav">
+    <div class="landing-logo">
+      <div class="landing-logo-icon">CT</div>
+      <div class="landing-logo-text">CognitionTrade</div>
+    </div>
+    <div class="landing-nav-links">
+      <a href="#features">Features</a>
+      <a href="#agents">AI Agents</a>
+      <a href="#pricing">Pricing</a>
+    </div>
+    <div class="landing-nav-right">
+      <div class="theme-toggle" data-action="toggle-theme" title="Toggle light/dark"><div class="theme-toggle-thumb"></div></div>
+      <a href="login.html" class="btn btn-ghost">Sign In</a>
+      <a href="login.html" class="btn-hero-primary" style="padding:8px 18px;font-size:13px;">Get Started Free</a>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-badge"><span class="dot" style="width:6px;height:6px;display:inline-block;"></span> 5 AI agents working for your edge</div>
+    <h1>Trade smarter.<br><span>Not harder.</span></h1>
+    <p class="hero-sub">The AI-powered journal that finds your patterns, spots emotional habits, and closes the gap between your plan and your execution.</p>
+    <div class="hero-ctas">
+      <a href="login.html" class="btn-hero-primary">Open Dashboard →</a>
+      <button class="btn-hero-ghost">Watch Demo</button>
+    </div>
+
+    <!-- Mock Preview Bar -->
+    <div class="hero-preview">
+      <div class="hero-preview-bar">
+        <div class="win-dot" style="background:#ff5f57"></div>
+        <div class="win-dot" style="background:#febc2e"></div>
+        <div class="win-dot" style="background:#28c840"></div>
+        <span style="font-size:11px;font-family:var(--mono);color:var(--text3);margin-left:8px;">cognitiontrade.ai/dashboard</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-bottom:1px solid var(--border);">
+        <div style="padding:16px 20px;border-right:1px solid var(--border);"><div style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;margin-bottom:6px;">Avg Edge / Trade</div><div style="font-family:var(--mono);font-size:22px;font-weight:500;color:var(--green);">+0.42R</div></div>
+        <div style="padding:16px 20px;border-right:1px solid var(--border);"><div style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;margin-bottom:6px;">Win Rate</div><div style="font-family:var(--mono);font-size:22px;font-weight:500;">58.3%</div></div>
+        <div style="padding:16px 20px;border-right:1px solid var(--border);"><div style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;margin-bottom:6px;">Plan vs Reality</div><div style="font-family:var(--mono);font-size:22px;font-weight:500;color:var(--red);">−0.32R</div></div>
+        <div style="padding:16px 20px;"><div style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;margin-bottom:6px;">Agents Active</div><div style="font-family:var(--mono);font-size:22px;font-weight:500;color:var(--accent);">5/5</div></div>
+      </div>
+      <div style="padding:16px 20px;display:flex;align-items:center;gap:12px;">
+        <div style="flex:1;height:40px;background:var(--bg3);border-radius:6px;overflow:hidden;">
+          <svg viewBox="0 0 400 40" style="width:100%;height:100%;" preserveAspectRatio="none">
+            <polyline points="0,35 40,28 80,22 120,30 160,15 200,10 240,18 280,8 320,5 360,3 400,1" fill="none" stroke="#00d4aa" stroke-width="2"/>
+          </svg>
+        </div>
+        <div style="background:rgba(255,71,87,0.08);border:1px solid rgba(255,71,87,0.2);border-radius:8px;padding:8px 14px;font-size:11px;font-family:var(--mono);color:var(--red);">⚡ Tilt warning: revenge trade detected</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="landing-stats">
+    <div class="stat-item"><div class="stat-num"><span>12k</span>+</div><div class="stat-label">Active traders</div></div>
+    <div class="stat-item"><div class="stat-num"><span>4.2M</span></div><div class="stat-label">Trades analyzed</div></div>
+    <div class="stat-item"><div class="stat-num"><span>0.3R</span></div><div class="stat-label">Avg gap closed</div></div>
+    <div class="stat-item"><div class="stat-num"><span>5</span></div><div class="stat-label">AI agents</div></div>
+  </div>
+
+  <!-- Features -->
+  <div class="features" id="features">
+    <div class="features-header">
+      <h2>Everything your edge needs</h2>
+      <p>A full cognitive system — not just a spreadsheet with a chatbot bolted on.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card"><div class="feature-icon green">📅</div><h3>Calendar Trade History</h3><p>See every trading day at a glance. Click any day to drill into every trade with full context.</p></div>
+      <div class="feature-card"><div class="feature-icon blue">🧠</div><h3>Execution Gap Analysis</h3><p>Quantifies the R lost between your plan and what you actually did — entry, stop, size, exit.</p></div>
+      <div class="feature-card"><div class="feature-icon amber">⚡</div><h3>Tilt Detection</h3><p>Real-time detection of revenge trading, hesitation, and overconfidence before they cost you.</p></div>
+      <div class="feature-card"><div class="feature-icon purple">📊</div><h3>R-Based Performance</h3><p>All metrics in risk units — not dollars — so you compare any trade to any other objectively.</p></div>
+      <div class="feature-card"><div class="feature-icon red">🔍</div><h3>Chart Vision AI</h3><p>Upload your TradingView screenshot. AI verifies your setup rationale matches what's on the chart.</p></div>
+      <div class="feature-card"><div class="feature-icon teal">📰</div><h3>Personalized Briefing</h3><p>News filtered to your watchlist only. No noise — just events that affect your positions.</p></div>
+    </div>
+  </div>
+
+  <!-- Agents -->
+  <div class="agents-section" id="agents">
+    <h2>5 specialized AI agents</h2>
+    <p>Each agent has one job. Together they form your cognitive trading partner.</p>
+    <div class="agent-cards">
+      <div class="agent-card"><div class="agent-card-icon">📋</div><div class="agent-card-name">Trade Analyst</div><div class="agent-card-desc">Reads your charts, verifies your rationale, tags psychology</div></div>
+      <div class="agent-card"><div class="agent-card-icon">📈</div><div class="agent-card-name">Performance</div><div class="agent-card-desc">R-multiples, win rates, expectancy, MAE/MFE analysis</div></div>
+      <div class="agent-card"><div class="agent-card-icon">🌐</div><div class="agent-card-name">Market Scout</div><div class="agent-card-desc">Filters news and events relevant to your watchlist</div></div>
+      <div class="agent-card"><div class="agent-card-icon">⚖️</div><div class="agent-card-name">Strategy Coach</div><div class="agent-card-desc">Calculates plan gap, detects tilt, suggests improvements</div></div>
+      <div class="agent-card"><div class="agent-card-icon">💬</div><div class="agent-card-name">AI Coach</div><div class="agent-card-desc">Natural language Q&amp;A over your full trade history</div></div>
+    </div>
+  </div>
+
+  <!-- Pricing -->
+  <div class="pricing" id="pricing">
+    <div class="pricing-header"><h2>Simple pricing</h2><p style="font-size:14px;color:var(--text2);">Start free, upgrade when you're serious.</p></div>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-plan">Starter</div>
+        <div class="price-amount">$0<span>/mo</span></div>
+        <div class="price-desc">For new traders exploring journaling</div>
+        <ul class="price-features"><li>Up to 50 trades/month</li><li>Basic calendar view</li><li>R-multiple tracking</li><li>AI Coach (10 queries/day)</li></ul>
+        <a href="login.html" class="btn-hero-ghost" style="width:100%;display:flex;justify-content:center;padding:10px;box-sizing:border-box;">Get started</a>
+      </div>
+      <div class="price-card featured">
+        <div class="price-badge">MOST POPULAR</div>
+        <div class="price-plan">Pro</div>
+        <div class="price-amount">$29<span>/mo</span></div>
+        <div class="price-desc">For active traders who take their edge seriously</div>
+        <ul class="price-features"><li>Unlimited trades</li><li>All 5 AI agents active</li><li>Chart vision verification</li><li>Execution gap analysis</li><li>Tilt detection &amp; alerts</li><li>Broker auto-sync (IBKR, Schwab)</li><li>Weekly AI report</li></ul>
+        <a href="login.html" class="btn-hero-primary" style="width:100%;display:flex;justify-content:center;padding:11px;box-sizing:border-box;">Start 14-day free trial</a>
+      </div>
+      <div class="price-card">
+        <div class="price-plan">Team</div>
+        <div class="price-amount">$79<span>/mo</span></div>
+        <div class="price-desc">For prop firms and trading teams</div>
+        <ul class="price-features"><li>Everything in Pro</li><li>Up to 10 traders</li><li>Team leaderboard &amp; comparison</li><li>Shared playbook rules</li><li>Priority support</li></ul>
+        <button class="btn-hero-ghost" style="width:100%;">Contact sales</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="landing-footer">
+    <div class="footer-copy">© 2026 CognitionTrade. Built for edge-seekers.</div>
+    <div class="footer-links"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Docs</a><a href="#">Status</a></div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>

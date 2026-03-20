@@ -1,0 +1,14 @@
+{
+  "name": "cognitiontrade",
+  "version": "1.0.0",
+  "description": "AI-powered trading journal with 5 specialized agents",
+  "scripts": {
+    "dev": "npx serve pages -p 3000",
+    "start": "npx serve pages -p 3000"
+  },
+  "devDependencies": {
+    "serve": "^14.2.3"
+  },
+  "keywords": ["trading", "journal", "ai", "langgraph"],
+  "license": "MIT"
+}

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings — CognitionTrade</title>
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/shell.css">
+</head>
+<body>
+<div id="sidebar-mount"></div>
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left"><div class="page-title">Settings</div></div>
+    <div class="topbar-right">
+      <button class="btn btn-ghost" data-action="logout">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="settings-layout">
+      <!-- Settings Sidebar Nav -->
+      <div>
+        <div style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;padding:4px 12px 8px;">Settings</div>
+        <div class="settings-nav">
+          <div class="settings-nav-item active" onclick="switchSettings('profile',this)"><div class="settings-nav-icon">👤</div>Profile</div>
+          <div class="settings-nav-item" onclick="switchSettings('appearance',this)"><div class="settings-nav-icon">🎨</div>Appearance</div>
+          <div class="settings-nav-item" onclick="switchSettings('notifications',this)"><div class="settings-nav-icon">🔔</div>Notifications</div>
+          <div class="settings-nav-item" onclick="switchSettings('brokers',this)"><div class="settings-nav-icon">🔗</div>Broker Connections</div>
+          <div class="settings-nav-item" onclick="switchSettings('trading',this)"><div class="settings-nav-icon">📊</div>Trading Defaults</div>
+          <div class="settings-nav-item" onclick="switchSettings('agents',this)"><div class="settings-nav-icon">🤖</div>AI Agents</div>
+          <div class="settings-nav-item" onclick="switchSettings('shortcuts',this)"><div class="settings-nav-icon">⌨️</div>Keyboard Shortcuts</div>
+          <div class="settings-nav-item" onclick="switchSettings('danger',this)"><div class="settings-nav-icon">⚠️</div>Data &amp; Privacy</div>
+          <div class="settings-nav-item" style="margin-top:8px;border-top:1px solid var(--border);padding-top:10px;" onclick="CT.auth.logout()"><div class="settings-nav-icon">🚪</div><span style="color:var(--red)">Sign Out</span></div>
+        </div>
+      </div>
+
+      <!-- Settings Content -->
+      <div>
+        <!-- PROFILE -->
+        <div class="settings-section active" id="settings-profile">
+          <h2>Profile</h2><p class="section-desc">Manage your account details and preferences.</p>
+          <div class="settings-card">
+            <div class="profile-avatar-row">
+              <div class="profile-avatar-big" data-user-avatar>JD</div>
+              <div class="profile-avatar-info"><h3 data-user-name>Jordan Dex</h3><p data-user-email>jordan@example.com · Pro plan</p></div>
+              <button class="btn btn-ghost" style="margin-left:auto;">Change Photo</button>
+            </div>
+            <div style="padding:0 20px 20px;">
+              <div class="form-grid-2" style="margin-bottom:14px;">
+                <div class="form-row"><label class="form-label">First Name</label><input class="form-input" value="Jordan"></div>
+                <div class="form-row"><label class="form-label">Last Name</label><input class="form-input" value="Dex"></div>
+              </div>
+              <div class="form-row"><label class="form-label">Email</label><input class="form-input" value="jordan@example.com" type="email"></div>
+              <div class="form-row"><label class="form-label">Trading Style</label><select class="form-input"><option>Day Trader</option><option>Swing Trader</option><option>Scalper</option></select></div>
+              <div class="form-row"><label class="form-label">Experience Level</label><select class="form-input"><option>Beginner</option><option selected>Intermediate (1–3 years)</option><option>Advanced</option><option>Professional</option></select></div>
+              <button class="btn btn-primary">Save Changes</button>
+            </div>
+          </div>
+          <div class="settings-card">
+            <div class="settings-card-header"><div class="settings-card-title">Change Password</div></div>
+            <div style="padding:16px 20px 20px;">
+              <div class="form-row"><label class="form-label">Current Password</label><input class="form-input" type="password" placeholder="••••••••"></div>
+              <div class="form-grid-2">
+                <div class="form-row"><label class="form-label">New Password</label><input class="form-input" type="password" placeholder="••••••••"></div>
+                <div class="form-row"><label class="form-label">Confirm</label><input class="form-input" type="password" placeholder="••••••••"></div>
+              </div>
+              <button class="btn btn-ghost">Update Password</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- APPEARANCE -->
+        <div class="settings-section" id="settings-appearance">
+          <h2>Appearance</h2><p class="section-desc">Customize how CognitionTrade looks and feels.</p>
+          <div class="settings-card">
+            <div class="settings-card-header"><div class="settings-card-title">Theme</div></div>
+            <div class="settings-row">
+              <div class="settings-row-left"><div class="settings-row-label">Color Mode</div><div class="settings-row-desc">Switch between dark and light interface</div></div>
+              <div class="theme-options">
+                <div class="theme-option selected" data-theme-opt="dark" onclick="CT.setTheme('dark')">🌙 Dark</div>
+                <div class="theme-option" data-theme-opt="light" onclick="CT.setTheme('light')">☀️ Light</div>
+                <div class="theme-option">💻 System</div>
+              </div>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-left"><div class="settings-row-label">Accent Color</div></div>
+              <div class="color-options">
+                <div class="color-swatch selected" style="background:#00d4aa;" title="Teal"></div>
+                <div class="color-swatch" style="background:#0097ff;" title="Blue"></div>
+                <div class="color-swatch" style="background:#9f7aea;" title="Purple"></div>
+                <div class="color-swatch" style="background:#ffb800;" title="Amber"></div>
+                <div class="color-swatch" style="background:#ff6b6b;" title="Coral"></div>
+              </div>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-left"><div class="settings-row-label">Font Size</div></div>
+              <select class="form-input" style="width:120px;"><option>Small</option><option selected>Medium</option><option>Large</option></select>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-left"><div class="settings-row-label">Compact Mode</div><div class="settings-row-desc">Reduce padding and spacing in tables</div></div>
+              <div class="toggle" onclick="this.classList.toggle('on')"><div class="toggle-thumb"></div></div>
+            </div>
+          </div>
+          <div class="settings-card">
+            <div class="settings-card-header"><div class="settings-card-title">Dashboard Layout</div></div>
+            <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">Show AI Agent Status Bar</div></div><div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-thumb"></div></div></div>
+            <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">Show Emotional Habits Card</div></div><div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-thumb"></div></div></div>
+            <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">Show Tilt Alerts</div></div><div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-thumb"></div></div></div>
+          </div>
+        </div>
+
+        <!-- NOTIFICATIONS -->
+        <div class="settings-section" id="settings-notifications">
+          <h2>Notifications</h2><p class="section-desc">Control when and how the AI agents alert you.</p>
+          <div class="settings-card">
+            <div class="settings-card-header"><div class="settings-card-title">AI Alerts</div></div>
+            <div class="notif-row"><div><div class="notif-label">Tilt / Revenge Trading Warning</div><div class="notif-desc">Alert when emotional patterns are detected in real-time</div></div><div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-thumb"></div></div></div>
+            <div class="notif-row"><div><div class="notif-label">Execution Gap Alert</div><div class="notif-desc">Notify when your entry/exit deviates from plan</div></div><div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-thumb"></div></div></div>
+            <div class="notif-row"><div><div class="notif-label">Daily Loss Limit Warning</div><div class="notif-desc">Alert at 80% and 100% of daily max loss</div></div><div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-thumb"></div></div></div>
+            <div class="notif-row"><div><div class="notif-label">Pre-Market Briefing</div><div class="notif-desc">Daily watchlist summary at 8:30 AM</div></div><div class="toggle" onclick="this.classList.toggle('on')"><div class="toggle-thumb"></div></div></div>
+          </div>
+          <div class="settings-card">
+            <div class="settings-card-header"><div class="settings-card-title">Reports</div></div>
+            <div class="notif-row"><div><div class="notif-label">Weekly Performance Summary</div><div class="notif-desc">Delivered every Sunday evening</div></div><div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-thumb"></div></div></div>
+            <div class="notif-row"><div><div class="notif-label">Monthly Deep Dive Report</div></div><div class="toggle" onclick="this.classList.toggle('on')"><div class="toggle-thumb"></div></div></div>
+          </div>
+        </div>
+
+        <!-- BROKERS -->
+        <div class="settings-section" id="settings-brokers">
+          <h2>Broker Connections</h2><p class="section-desc">Connect your brokers for automatic trade import.</p>
+          <div class="settings-card">
+            <div class="broker-item"><div class="broker-icon">🏦</div><div class="broker-info"><div class="broker-name">Interactive Brokers (IBKR)</div><div class="broker-status connected">● Connected · Last sync 2 min ago</div></div><button class="btn btn-ghost" style="padding:6px 12px;font-size:12px;">Disconnect</button></div>
+            <div class="broker-item"><div class="broker-icon">📈</div><div class="broker-info"><div class="broker-name">Charles Schwab</div><div class="broker-status disconnected">● Not connected</div></div><button class="btn btn-primary" style="padding:6px 12px;font-size:12px;">Connect</button></div>
+            <div class="broker-item"><div class="broker-icon">🔶</div><div class="broker-info"><div class="broker-name">TD Ameritrade / ThinkorSwim</div><div class="broker-status disconnected">● Not connected</div></div><button class="btn btn-primary" style="padding:6px 12px;font-size:12px;">Connect</button></div>
+            <div class="broker-item"><div class="broker-icon">📂</div><div class="broker-info"><div class="broker-name">Manual CSV Import</div><div class="broker-status connected">● Always available</div></div><button class="btn btn-ghost" style="padding:6px 12px;font-size:12px;">Import File</button></div>
+          </div>
+        </div>
+
+        <!-- TRADING DEFAULTS -->
+        <div class="settings-section" id="settings-trading">
+          <h2>Trading Defaults</h2><p class="section-desc">Set your risk parameters and default trade settings.</p>
+          <div class="settings-card">
+            <div class="settings-card-header"><div class="settings-card-title">Risk Management</div></div>
+            <div style="padding:16px 20px 20px;">
+              <div class="form-grid-2" style="margin-bottom:16px;">
+                <div class="form-row"><label class="form-label">Account Size ($)</label><input class="form-input" value="25000" style="font-family:var(--mono);"></div>
+                <div class="form-row"><label class="form-label">Risk Per Trade (%)</label><input class="form-input" value="1.0" style="font-family:var(--mono);"></div>
+              </div>
+              <div class="form-grid-2" style="margin-bottom:16px;">
+                <div class="form-row"><label class="form-label">Daily Max Loss ($)</label><input class="form-input" value="500" style="font-family:var(--mono);"></div>
+                <div class="form-row"><label class="form-label">Weekly Max Loss ($)</label><input class="form-input" value="1500" style="font-family:var(--mono);"></div>
+              </div>
+              <button class="btn btn-primary">Save Risk Settings</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI AGENTS -->
+        <div class="settings-section" id="settings-agents">
+          <h2>AI Agents</h2><p class="section-desc">Configure which agents are active and how they behave.</p>
+          <div class="settings-card">
+            <div class="settings-card-header"><div class="settings-card-title">Agent Status</div></div>
+            <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">Trade Analyst</div><div class="settings-row-desc">Chart vision, rationale verification, psychology tagging</div></div><div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-thumb"></div></div></div>
+            <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">Performance Agent</div><div class="settings-row-desc">R-multiples, win rates, MAE/MFE calculations</div></div><div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-thumb"></div></div></div>
+            <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">Market Scout</div><div class="settings-row-desc">Personalized news and event filtering</div></div><div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-thumb"></div></div></div>
+            <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">Strategy Coach</div><div class="settings-row-desc">Execution gap analysis and tilt detection</div></div><div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-thumb"></div></div></div>
+            <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">AI Coach (Chat)</div></div><div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-thumb"></div></div></div>
+          </div>
+          <div class="settings-card">
+            <div class="settings-card-header"><div class="settings-card-title">AI Model</div></div>
+            <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">Language Model</div></div><select class="form-input" style="width:230px;"><option>Claude Sonnet 4.6 (Recommended)</option><option>Claude Opus 4.6</option></select></div>
+            <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">Memory Length</div></div><select class="form-input" style="width:140px;"><option>30 days</option><option selected>90 days</option><option>All time</option></select></div>
+          </div>
+        </div>
+
+        <!-- SHORTCUTS -->
+        <div class="settings-section" id="settings-shortcuts">
+          <h2>Keyboard Shortcuts</h2><p class="section-desc">Speed up your journaling workflow.</p>
+          <div class="settings-card">
+            <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">Open Dashboard</div></div><div><span class="kbd">G</span> then <span class="kbd">D</span></div></div>
+            <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">Log a New Trade</div></div><div><span class="kbd">⌘</span> <span class="kbd">N</span></div></div>
+            <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">Open AI Coach</div></div><div><span class="kbd">⌘</span> <span class="kbd">K</span></div></div>
+            <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">Trade History</div></div><div><span class="kbd">G</span> then <span class="kbd">H</span></div></div>
+            <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">Toggle Theme</div></div><div><span class="kbd">⌘</span> <span class="kbd">Shift</span> <span class="kbd">L</span></div></div>
+          </div>
+        </div>
+
+        <!-- DANGER / LOGOUT -->
+        <div class="settings-section" id="settings-danger">
+          <h2>Data &amp; Privacy</h2><p class="section-desc">Manage your data and account security.</p>
+          <div class="settings-card">
+            <div class="settings-card-header"><div class="settings-card-title">Data Export</div></div>
+            <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">Export All Trades</div><div class="settings-row-desc">Download your full trade history as CSV</div></div><button class="btn btn-ghost">Export CSV</button></div>
+            <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">Export Performance Report</div><div class="settings-row-desc">Download your analytics as PDF</div></div><button class="btn btn-ghost">Export PDF</button></div>
+          </div>
+          <div class="settings-card">
+            <div class="settings-card-header"><div class="settings-card-title" style="color:var(--red);">Danger Zone</div></div>
+            <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">Delete All Trade History</div><div class="settings-row-desc">Permanently removes all logged trades. Cannot be undone.</div></div><button class="btn btn-danger">Delete History</button></div>
+            <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">Delete Account</div><div class="settings-row-desc">Permanently deletes your account and all data.</div></div><button class="btn btn-danger">Delete Account</button></div>
+          </div>
+          <div class="settings-card">
+            <div class="settings-card-header"><div class="settings-card-title">Session</div></div>
+            <div class="settings-row">
+              <div class="settings-row-left"><div class="settings-row-label">Sign out of CognitionTrade</div><div class="settings-row-desc">You will be returned to the login page</div></div>
+              <button class="btn btn-danger" data-action="logout">Sign Out</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+<script src="js/sidebar.js"></script>
+<script>
+  CT.auth.requireAuth();
+  function switchSettings(id, el) {
+    document.querySelectorAll('.settings-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.settings-nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('settings-' + id).classList.add('active');
+    if (el) el.classList.add('active');
+  }
+</script>
+</body>
+</html>

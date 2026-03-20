@@ -1,0 +1,93 @@
+/* ═══════════════════════════════════════
+   COGNITIONTRADE — THEME & BASE STYLES
+═══════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
+
+/* ── TOKEN MAPS ── */
+[data-theme="dark"] {
+  --bg: #0a0c0f;
+  --bg2: #0f1217;
+  --bg3: #141820;
+  --bg4: #1a2030;
+  --border: rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.11);
+  --text: #e8ecf0;
+  --text2: #8892a0;
+  --text3: #4a5568;
+  --shadow: rgba(0,0,0,0.4);
+  --card-bg: #0f1217;
+  --input-bg: #141820;
+  --topbar-bg: rgba(10,12,15,0.88);
+  --landing-grid: rgba(0,212,170,0.04);
+}
+[data-theme="light"] {
+  --bg: #f0f2f5;
+  --bg2: #ffffff;
+  --bg3: #f4f6f9;
+  --bg4: #e8ecf2;
+  --border: rgba(0,0,0,0.07);
+  --border2: rgba(0,0,0,0.12);
+  --text: #141820;
+  --text2: #4a5568;
+  --text3: #8892a0;
+  --shadow: rgba(0,0,0,0.08);
+  --card-bg: #ffffff;
+  --input-bg: #f4f6f9;
+  --topbar-bg: rgba(240,242,245,0.92);
+  --landing-grid: rgba(0,150,100,0.06);
+}
+:root {
+  --accent: #00d4aa;
+  --accent2: #0097ff;
+  --red: #ff4757;
+  --amber: #ffb800;
+  --green: #00d4aa;
+  --purple: #9f7aea;
+  --mono: 'DM Mono', monospace;
+  --display: 'Syne', sans-serif;
+  --body: 'DM Sans', sans-serif;
+  --sidebar: 224px;
+  --topbar-h: 56px;
+}
+
+/* ── RESET ── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 14px;
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background 0.25s, color 0.25s;
+}
+
+/* ── TYPOGRAPHY HELPERS ── */
+.font-mono  { font-family: var(--mono); }
+.font-display { font-family: var(--display); }
+.c-green  { color: var(--green); }
+.c-red    { color: var(--red); }
+.c-amber  { color: var(--amber); }
+.c-blue   { color: var(--accent2); }
+.c-purple { color: var(--purple); }
+.c-muted  { color: var(--text2); }
+.c-accent { color: var(--accent); }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+
+/* ── ANIMATIONS ── */
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.fade-in { animation: fadeIn 0.25s ease forwards; }
+
+.dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 2s ease-in-out infinite;
+  display: inline-block;
+}

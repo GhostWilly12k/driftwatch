@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Execution Review — CognitionTrade</title>
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/shell.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+</head>
+<body>
+<div id="sidebar-mount"></div>
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left"><div class="page-title">Execution Review</div><div class="date-chip">Fri, 20 Mar 2026</div></div>
+    <div class="topbar-right"><button class="btn btn-ghost" data-action="logout">Sign Out</button></div>
+  </div>
+  <div class="content">
+    <div class="grid-4" style="margin-bottom:22px;">
+      <div class="card metric"><div class="metric-label">Avg Plan Gap</div><div class="metric-value c-red">−0.32R</div><div class="metric-sub">Reality vs your plan</div></div>
+      <div class="card metric"><div class="metric-label">Hesitation Cost</div><div class="metric-value c-amber">0.18R</div><div class="metric-sub">Waiting too long to enter</div></div>
+      <div class="card metric"><div class="metric-label">Left on the Table</div><div class="metric-value c-red">0.21R</div><div class="metric-sub">Exiting before full target</div></div>
+      <div class="card metric"><div class="metric-label">Stop Moved Wider</div><div class="metric-value c-amber">6 trades</div><div class="metric-sub">This month</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px;">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Your Plan vs. What Actually Happened</div></div>
+        <div class="gap-visual">
+          <div class="gap-row"><div class="gap-label">Entry price</div><div class="gap-bar-track"><div class="gap-planned" style="width:100%"></div><div class="gap-actual" style="width:82%"></div></div><div class="gap-delta c-red">−0.18R</div></div>
+          <div class="gap-row"><div class="gap-label">Stop loss</div><div class="gap-bar-track"><div class="gap-planned" style="width:100%"></div><div class="gap-actual" style="width:112%;background:var(--amber)"></div></div><div class="gap-delta c-amber">+0.12R</div></div>
+          <div class="gap-row"><div class="gap-label">Profit target</div><div class="gap-bar-track"><div class="gap-planned" style="width:100%"></div><div class="gap-actual" style="width:68%"></div></div><div class="gap-delta c-red">−0.21R</div></div>
+          <div class="gap-row"><div class="gap-label">Trade size</div><div class="gap-bar-track"><div class="gap-planned" style="width:100%"></div><div class="gap-actual" style="width:130%;background:var(--red)"></div></div><div class="gap-delta c-red">+35%</div></div>
+          <div class="gap-summary"><p><strong style="color:var(--accent2)">AI Coach says:</strong> Exiting early is your biggest leak — 14 trades this month left an avg of 0.21R on the table. A trailing stop at the 20-EMA could recover ~18% more profit.</p></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Worst Loss vs Best Gain Potential</div></div>
+        <div class="card-body">
+          <div class="chart-wrap" style="height:200px;"><canvas id="maeMfeChart"></canvas></div>
+          <div style="margin-top:14px;display:flex;gap:12px;">
+            <div style="flex:1;background:rgba(255,71,87,0.06);border:1px solid rgba(255,71,87,0.15);border-radius:8px;padding:10px 12px;text-align:center;"><div style="font-size:10px;font-family:var(--mono);color:var(--text3);margin-bottom:4px;">Avg Max Risk Hit</div><div style="font-family:var(--mono);font-size:17px;color:var(--red);">0.74R</div></div>
+            <div style="flex:1;background:rgba(0,212,170,0.06);border:1px solid rgba(0,212,170,0.15);border-radius:8px;padding:10px 12px;text-align:center;"><div style="font-size:10px;font-family:var(--mono);color:var(--text3);margin-bottom:4px;">Avg Max Gain Available</div><div style="font-family:var(--mono);font-size:17px;color:var(--green);">1.92R</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Emotional Patterns Detected</div></div>
+      <div class="card-body">
+        <table class="trade-table">
+          <thead><tr><th>Pattern</th><th>What Triggered It</th><th>How Often</th><th>Cost to You</th><th>What the AI Did</th></tr></thead>
+          <tbody>
+            <tr><td><strong style="color:var(--red)">Revenge Trading</strong></td><td style="font-family:var(--mono);font-size:12px;">Trade size +35% after a loss</td><td><span class="r-val c-amber">4× this month</span></td><td><span class="r-val c-red">−2.1R total</span></td><td style="font-size:12px;color:var(--text2);">Sent cool-down alert</td></tr>
+            <tr><td><strong style="color:var(--purple)">Hesitation</strong></td><td style="font-family:var(--mono);font-size:12px;">Entered 0.5R+ away from plan</td><td><span class="r-val c-amber">9× this month</span></td><td><span class="r-val c-red">−1.6R total</span></td><td style="font-size:12px;color:var(--text2);">Showed confidence card</td></tr>
+            <tr><td><strong style="color:var(--amber)">Exiting Too Early</strong></td><td style="font-family:var(--mono);font-size:12px;">Closed before target, high gain left</td><td><span class="r-val c-red">14× this month</span></td><td><span class="r-val c-red">−2.9R total</span></td><td style="font-size:12px;color:var(--text2);">Suggested trailing stop</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="js/app.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/charts.js"></script>
+<script>CT.auth.requireAuth();</script>
+</body>
+</html>

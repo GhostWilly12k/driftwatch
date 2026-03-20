@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — CognitionTrade</title>
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/shell.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+</head>
+<body>
+<div id="sidebar-mount"></div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="page-title" id="page-title">Dashboard</div>
+      <div class="date-chip">Fri, 20 Mar 2026</div>
+    </div>
+    <div class="topbar-right">
+      <div class="ai-status"><span class="dot"></span>Agents active</div>
+      <a href="journal.html" class="btn btn-ghost">Import Trades</a>
+      <a href="journal.html" class="btn btn-primary">+ Log a Trade</a>
+      <button class="btn btn-ghost" data-action="logout">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- Agent Bar -->
+    <div class="agent-bar">
+      <div class="agent-bar-label">AI Agents</div>
+      <div class="agents">
+        <div class="agent active"><div class="agent-dot"></div>Trade Analyst</div>
+        <div class="agent thinking"><div class="agent-dot"></div>Performance</div>
+        <div class="agent active"><div class="agent-dot"></div>Market Scout</div>
+        <div class="agent"><div class="agent-dot"></div>Strategy Coach</div>
+        <div class="agent"><div class="agent-dot"></div>AI Coach</div>
+      </div>
+    </div>
+
+    <!-- Tilt Alert -->
+    <div class="alert-banner">
+      <div class="alert-banner-icon">⚡</div>
+      <div class="alert-content">
+        <p>Emotional Trading Warning — Strategy Coach</p>
+        <p>Your trade size increased 35% right after a losing trade on NVDA (09:47). This looks like revenge trading. Complete the Mindset Checklist before your next entry.</p>
+      </div>
+      <div class="alert-close" onclick="this.parentElement.style.display='none'">✕</div>
+    </div>
+
+    <!-- Metrics -->
+    <div class="grid-4">
+      <div class="card metric"><div class="metric-label">Average Edge Per Trade</div><div class="metric-value c-green">+0.42R</div><div class="metric-sub"><span class="c-green">↑ 0.08R</span> vs last 30 days</div><div class="metric-bar"><div class="metric-bar-fill" style="width:68%;background:var(--green)"></div></div></div>
+      <div class="card metric"><div class="metric-label">Winning Trade Rate</div><div class="metric-value">58.3%</div><div class="metric-sub"><span class="c-green">↑ 2.1%</span> this month</div><div class="metric-bar"><div class="metric-bar-fill" style="width:58%;background:var(--accent2)"></div></div></div>
+      <div class="card metric"><div class="metric-label">Avg Profit Per Win</div><div class="metric-value c-amber">+0.71R</div><div class="metric-sub">Avg loss: <span class="c-red">-0.88R</span></div><div class="metric-bar"><div class="metric-bar-fill" style="width:45%;background:var(--amber)"></div></div></div>
+      <div class="card metric"><div class="metric-label">Plan vs. Reality Gap</div><div class="metric-value c-red">−0.32R</div><div class="metric-sub">Per trade vs your plan</div><div class="metric-bar"><div class="metric-bar-fill" style="width:32%;background:var(--red)"></div></div></div>
+    </div>
+
+    <div class="grid-main">
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <!-- Equity Curve -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Account Growth (Risk Units)</div>
+            <div style="display:flex;gap:6px;">
+              <div style="padding:4px 10px;font-size:11px;border-radius:4px;background:rgba(0,212,170,0.1);color:var(--accent);font-family:var(--mono);cursor:pointer;">1M</div>
+              <div style="padding:4px 10px;font-size:11px;border-radius:4px;color:var(--text3);font-family:var(--mono);cursor:pointer;">3M</div>
+              <div style="padding:4px 10px;font-size:11px;border-radius:4px;color:var(--text3);font-family:var(--mono);cursor:pointer;">All</div>
+            </div>
+          </div>
+          <div class="card-body"><div class="chart-wrap" style="height:200px;"><canvas id="equityChart"></canvas></div></div>
+        </div>
+
+        <!-- Today's Trades -->
+        <div class="card">
+          <div class="card-header" style="padding:16px 20px 14px;">
+            <div class="card-title">Today's Trades</div>
+            <div style="font-size:12px;color:var(--text3);font-family:var(--mono);">Mar 20 · 5 trades</div>
+          </div>
+          <table class="trade-table">
+            <thead><tr><th>Stock</th><th>Strategy</th><th>Outcome</th><th>Risk / Gain</th><th>Mindset</th><th></th></tr></thead>
+            <tbody>
+              <tr><td><div class="symbol">AAPL</div><div style="font-size:11px;color:var(--text3);font-family:var(--mono)">Long · 09:32</div></td><td><span class="setup-tag">Bull Flag</span></td><td><span class="r-val c-green">+1.8R</span></td><td style="font-family:var(--mono);font-size:12px;">0.4 / 2.1R</td><td><span class="psy-tag psy-focused">Focused</span></td><td><span class="status-dot" style="background:var(--green)"></span></td></tr>
+              <tr><td><div class="symbol">NVDA</div><div style="font-size:11px;color:var(--text3);font-family:var(--mono)">Short · 09:47</div></td><td><span class="setup-tag">VWAP Fade</span></td><td><span class="r-val c-red">−1.2R</span></td><td style="font-family:var(--mono);font-size:12px;">1.8 / 0.3R</td><td><span class="psy-tag psy-fomo">Impulsive</span></td><td><span class="status-dot" style="background:var(--red)"></span></td></tr>
+              <tr><td><div class="symbol">SPY</div><div style="font-size:11px;color:var(--text3);font-family:var(--mono)">Long · 10:15</div></td><td><span class="setup-tag">Open Breakout</span></td><td><span class="r-val c-green">+2.4R</span></td><td style="font-family:var(--mono);font-size:12px;">0.2 / 2.8R</td><td><span class="psy-tag psy-focused">Focused</span></td><td><span class="status-dot" style="background:var(--green)"></span></td></tr>
+              <tr><td><div class="symbol">TSLA</div><div style="font-size:11px;color:var(--text3);font-family:var(--mono)">Long · 11:02</div></td><td><span class="setup-tag">Bull Flag</span></td><td><span class="r-val c-red">−0.8R</span></td><td style="font-family:var(--mono);font-size:12px;">1.1 / 0.6R</td><td><span class="psy-tag psy-revenge">Revenge</span></td><td><span class="status-dot" style="background:var(--red)"></span></td></tr>
+              <tr><td><div class="symbol">META</div><div style="font-size:11px;color:var(--text3);font-family:var(--mono)">Long · 13:45</div></td><td><span class="setup-tag">Trend Follow</span></td><td><span class="r-val c-green">+1.1R</span></td><td style="font-family:var(--mono);font-size:12px;">0.3 / 1.9R</td><td><span class="psy-tag psy-hesitant">Hesitant</span></td><td><span class="status-dot" style="background:var(--green)"></span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Right column -->
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <!-- Chat -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">Ask My AI Coach</div><div class="ai-status" style="font-size:11px;"><span class="dot"></span>Live</div></div>
+          <div class="chat-panel">
+            <div class="chat-messages">
+              <div class="msg msg-ai"><div class="msg-agent">AI Coach · 09:00</div><div class="msg-bubble">Good morning Jordan. VIX is elevated at 22.4 today. Based on your history, you lose <strong>−0.3R more per trade</strong> on high-volatility days. Consider sizing down.<div class="insight-chip">⚠ Pattern from your history</div></div></div>
+              <div class="msg msg-user"><div class="msg-bubble">How often do I win on Bull Flag setups?</div></div>
+              <div class="msg msg-ai"><div class="msg-agent">Performance Agent</div><div class="msg-bubble">Bull Flag · 60 days:<br>Win Rate: <strong style="color:var(--accent)">67.4%</strong> · Avg Win: <strong style="color:var(--green)">+2.1R</strong><br>Expected return: <strong style="color:var(--accent)">+0.81R</strong><br>Best window: 10:00–11:30 AM.</div></div>
+            </div>
+            <div class="chat-input-area">
+              <div class="quick-queries"><div class="quick-q">Best strategy by time</div><div class="quick-q">When do I trade worst?</div><div class="quick-q">My biggest habit</div></div>
+              <div class="chat-input-wrap"><textarea class="chat-input" placeholder="Ask anything…"></textarea><button class="send-btn"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M14 2L7 9M14 2L9 14l-2-5-5-2 12-5z" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Emotional Habits -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">Emotional Habits</div></div>
+          <div class="card-body">
+            <div class="bias-grid">
+              <div class="bias-item"><div class="bias-name">Impulsive Entries</div><div class="bias-bar-track"><div style="height:100%;width:62%;background:var(--amber);border-radius:2px;"></div></div><div class="bias-val c-amber">62%</div></div>
+              <div class="bias-item"><div class="bias-name">Revenge Trading</div><div class="bias-bar-track"><div style="height:100%;width:28%;background:var(--red);border-radius:2px;"></div></div><div class="bias-val c-red">28%</div></div>
+              <div class="bias-item"><div class="bias-name">Hesitation</div><div class="bias-bar-track"><div style="height:100%;width:45%;background:var(--purple);border-radius:2px;"></div></div><div class="bias-val c-purple">45%</div></div>
+              <div class="bias-item"><div class="bias-name">Overconfidence</div><div class="bias-bar-track"><div style="height:100%;width:18%;background:var(--accent2);border-radius:2px;"></div></div><div class="bias-val c-blue">18%</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/charts.js"></script>
+<script>CT.auth.requireAuth();</script>
+</body>
+</html>

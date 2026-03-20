@@ -1,0 +1,100 @@
+<!-- journal.html — Log a Trade -->
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log a Trade — CognitionTrade</title>
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/shell.css">
+</head>
+<body>
+<div id="sidebar-mount"></div>
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left"><div class="page-title">Log a Trade</div><div class="date-chip">Fri, 20 Mar 2026</div></div>
+    <div class="topbar-right"><button class="btn btn-ghost" data-action="logout">Sign Out</button></div>
+  </div>
+  <div class="content">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div>
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-header"><div class="card-title">Trade Details</div></div>
+          <div style="padding:20px;">
+            <div class="form-grid-3" style="margin-bottom:16px;">
+              <div class="form-row"><label class="form-label">Stock / Symbol</label><input class="form-input" placeholder="e.g. AAPL" style="font-family:var(--mono);font-weight:500;"></div>
+              <div class="form-row"><label class="form-label">Direction</label><select class="form-input"><option>Bought (Long)</option><option>Shorted (Short)</option></select></div>
+              <div class="form-row"><label class="form-label">Strategy Used</label><select class="form-input"><option>Bull Flag</option><option>VWAP Fade</option><option>Open Breakout</option><option>Trend Follow</option></select></div>
+            </div>
+            <div class="form-grid-3" style="margin-bottom:16px;">
+              <div class="form-row"><label class="form-label">Entry Price</label><input class="form-input" placeholder="195.40" style="font-family:var(--mono);"></div>
+              <div class="form-row"><label class="form-label">Stop Loss</label><input class="form-input" placeholder="193.80" style="font-family:var(--mono);"></div>
+              <div class="form-row"><label class="form-label">Profit Target</label><input class="form-input" placeholder="198.60" style="font-family:var(--mono);"></div>
+            </div>
+            <div class="form-grid-2" style="margin-bottom:16px;">
+              <div class="form-row"><label class="form-label">Planned Entry</label><input class="form-input" placeholder="195.00" style="font-family:var(--mono);"></div>
+              <div class="form-row"><label class="form-label">Planned Stop</label><input class="form-input" placeholder="193.50" style="font-family:var(--mono);"></div>
+            </div>
+            <div class="form-row"><label class="form-label">Why did you take this trade?</label><textarea class="form-input" rows="3" placeholder="Describe your reasoning…" style="resize:vertical;"></textarea></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">How Were You Feeling?</div></div>
+          <div style="padding:20px;">
+            <div class="form-row"><label class="form-label">Pre-Trade Emotion</label>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;">
+                <div class="emotion-chip sel">Confident</div><div class="emotion-chip">Calm</div>
+                <div class="emotion-chip neg sel">Impulsive</div><div class="emotion-chip">Uncertain</div>
+                <div class="emotion-chip neg">Anxious</div><div class="emotion-chip">In the Zone</div>
+                <div class="emotion-chip neg">Greedy</div><div class="emotion-chip neg">Revenge Mode</div>
+              </div>
+            </div>
+            <div class="form-row" style="margin-top:16px;"><label class="form-label">Confidence (1–10)</label><input type="range" min="1" max="10" value="7" style="width:100%;"></div>
+            <div class="form-row"><label class="form-label">Post-Trade Notes</label><textarea class="form-input" rows="2" placeholder="Did you follow your plan?"></textarea></div>
+            <button class="btn btn-primary" style="width:100%;justify-content:center;padding:11px;margin-top:4px;">Save Trade &amp; Get AI Feedback →</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-header"><div class="card-title">Upload Chart — AI Will Review It</div></div>
+          <div style="padding:20px;">
+            <div style="border:1px dashed var(--border2);border-radius:8px;padding:28px;text-align:center;background:var(--bg3);cursor:pointer;">
+              <div style="font-size:28px;margin-bottom:8px;">📈</div>
+              <div style="font-size:13px;color:var(--text2);">Drop TradingView / MT5 screenshot here</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:3px;font-family:var(--mono);">AI verifies your setup matches the chart</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;background:rgba(0,212,170,0.05);border:1px solid rgba(0,212,170,0.15);border-radius:8px;padding:10px 13px;margin-top:10px;">
+              <span class="dot"></span>
+              <div style="font-size:12px;color:var(--accent);font-family:var(--mono);">AI will extract: price levels · patterns · indicators</div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-header"><div class="card-title">Risk vs. Reward Preview</div></div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center;">
+              <div style="background:var(--bg3);border-radius:8px;padding:14px;"><div style="font-size:10px;font-family:var(--mono);color:var(--text3);margin-bottom:6px;">Max Loss</div><div style="font-family:var(--mono);font-size:18px;color:var(--red);">−$160</div></div>
+              <div style="background:var(--bg3);border-radius:8px;padding:14px;"><div style="font-size:10px;font-family:var(--mono);color:var(--text3);margin-bottom:6px;">Target</div><div style="font-family:var(--mono);font-size:18px;color:var(--green);">+2.0R</div></div>
+              <div style="background:var(--bg3);border-radius:8px;padding:14px;"><div style="font-size:10px;font-family:var(--mono);color:var(--text3);margin-bottom:6px;">Ratio</div><div style="font-family:var(--mono);font-size:18px;color:var(--accent2);">1:2.0</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Pre-Trade Checklist</div></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg3);border-radius:7px;"><div style="width:16px;height:16px;border-radius:4px;background:rgba(0,212,170,0.2);border:1px solid rgba(0,212,170,0.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><div style="width:8px;height:8px;background:var(--accent);border-radius:1px;"></div></div><div style="font-size:13px;">Entered near my planned price (within 0.1R)</div></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg3);border-radius:7px;"><div style="width:16px;height:16px;border-radius:4px;background:rgba(0,212,170,0.2);border:1px solid rgba(0,212,170,0.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><div style="width:8px;height:8px;background:var(--accent);border-radius:1px;"></div></div><div style="font-size:13px;">No major news events in the next 30 minutes</div></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(255,71,87,0.05);border:1px solid rgba(255,71,87,0.15);border-radius:7px;"><div style="width:16px;height:16px;border-radius:4px;background:rgba(255,71,87,0.1);border:1px solid rgba(255,71,87,0.3);flex-shrink:0;"></div><div style="font-size:13px;color:var(--text2);">Trade size within my daily risk limit</div></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg3);border-radius:7px;"><div style="width:16px;height:16px;border-radius:4px;background:rgba(0,212,170,0.2);border:1px solid rgba(0,212,170,0.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><div style="width:8px;height:8px;background:var(--accent);border-radius:1px;"></div></div><div style="font-size:13px;">Market volatility within my comfort range</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="js/app.js"></script>
+<script src="js/sidebar.js"></script>
+<script>CT.auth.requireAuth();</script>
+</body>
+</html>
