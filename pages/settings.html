@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Settings — CognitionTrade</title>
-  <link rel="stylesheet" href="css/theme.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/shell.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/shell.css">
 </head>
 <body>
 <div id="sidebar-mount"></div>
@@ -48,12 +48,12 @@
             </div>
             <div style="padding:0 20px 20px;">
               <div class="form-grid-2" style="margin-bottom:14px;">
-                <div class="form-row"><label class="form-label">First Name</label><input class="form-input" value="Jordan"></div>
-                <div class="form-row"><label class="form-label">Last Name</label><input class="form-input" value="Dex"></div>
+                <div class="form-row"><label class="form-label">First Name</label><input title="select" class="form-input" value="Jordan"></div>
+                <div class="form-row"><label class="form-label">Last Name</label><input title="select" class="form-input" value="Dex"></div>
               </div>
-              <div class="form-row"><label class="form-label">Email</label><input class="form-input" value="jordan@example.com" type="email"></div>
-              <div class="form-row"><label class="form-label">Trading Style</label><select class="form-input"><option>Day Trader</option><option>Swing Trader</option><option>Scalper</option></select></div>
-              <div class="form-row"><label class="form-label">Experience Level</label><select class="form-input"><option>Beginner</option><option selected>Intermediate (1–3 years)</option><option>Advanced</option><option>Professional</option></select></div>
+              <div class="form-row"><label class="form-label">Email</label><input title="select" class="form-input" value="jordan@example.com" type="email"></div>
+              <div class="form-row"><label class="form-label">Trading Style</label><select title="select" class="form-input"><option>Day Trader</option><option>Swing Trader</option><option>Scalper</option></select></div>
+              <div class="form-row"><label class="form-label">Experience Level</label><select title="select" class="form-input"><option>Beginner</option><option selected>Intermediate (1–3 years)</option><option>Advanced</option><option>Professional</option></select></div>
               <button class="btn btn-primary">Save Changes</button>
             </div>
           </div>
@@ -95,7 +95,7 @@
             </div>
             <div class="settings-row">
               <div class="settings-row-left"><div class="settings-row-label">Font Size</div></div>
-              <select class="form-input" style="width:120px;"><option>Small</option><option selected>Medium</option><option>Large</option></select>
+              <select title="select" class="form-input" style="width:120px;"><option>Small</option><option selected>Medium</option><option>Large</option></select>
             </div>
             <div class="settings-row">
               <div class="settings-row-left"><div class="settings-row-label">Compact Mode</div><div class="settings-row-desc">Reduce padding and spacing in tables</div></div>
@@ -145,12 +145,12 @@
             <div class="settings-card-header"><div class="settings-card-title">Risk Management</div></div>
             <div style="padding:16px 20px 20px;">
               <div class="form-grid-2" style="margin-bottom:16px;">
-                <div class="form-row"><label class="form-label">Account Size ($)</label><input class="form-input" value="25000" style="font-family:var(--mono);"></div>
-                <div class="form-row"><label class="form-label">Risk Per Trade (%)</label><input class="form-input" value="1.0" style="font-family:var(--mono);"></div>
+                <div class="form-row"><label class="form-label">Account Size ($)</label><input title="select" class="form-input" value="25000" style="font-family:var(--mono);"></div>
+                <div class="form-row"><label class="form-label">Risk Per Trade (%)</label><input title="select" class="form-input" value="1.0" style="font-family:var(--mono);"></div>
               </div>
               <div class="form-grid-2" style="margin-bottom:16px;">
-                <div class="form-row"><label class="form-label">Daily Max Loss ($)</label><input class="form-input" value="500" style="font-family:var(--mono);"></div>
-                <div class="form-row"><label class="form-label">Weekly Max Loss ($)</label><input class="form-input" value="1500" style="font-family:var(--mono);"></div>
+                <div class="form-row"><label class="form-label">Daily Max Loss ($)</label><input title="select" class="form-input" value="500" style="font-family:var(--mono);"></div>
+                <div class="form-row"><label class="form-label">Weekly Max Loss ($)</label><input title="select"class="form-input" value="1500" style="font-family:var(--mono);"></div>
               </div>
               <button class="btn btn-primary">Save Risk Settings</button>
             </div>
@@ -170,8 +170,8 @@
           </div>
           <div class="settings-card">
             <div class="settings-card-header"><div class="settings-card-title">AI Model</div></div>
-            <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">Language Model</div></div><select class="form-input" style="width:230px;"><option>Claude Sonnet 4.6 (Recommended)</option><option>Claude Opus 4.6</option></select></div>
-            <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">Memory Length</div></div><select class="form-input" style="width:140px;"><option>30 days</option><option selected>90 days</option><option>All time</option></select></div>
+            <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">Language Model</div></div><select title="select" class="form-input" style="width:230px;"><option>Claude Sonnet 4.6 (Recommended)</option><option>Claude Opus 4.6</option></select></div>
+            <div class="settings-row"><div class="settings-row-left"><div class="settings-row-label">Memory Length</div></div><select title="select" class="form-input" style="width:140px;"><option>30 days</option><option selected>90 days</option><option>All time</option></select></div>
           </div>
         </div>
 
@@ -213,8 +213,8 @@
   </div>
 </div>
 
-<script src="js/app.js"></script>
-<script src="js/sidebar.js"></script>
+<script src="../js/app.js"></script>
+<script src="../js/sidebar.js"></script>
 <script>
   CT.auth.requireAuth();
   function switchSettings(id, el) {

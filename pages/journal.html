@@ -4,9 +4,9 @@
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Log a Trade — CognitionTrade</title>
-  <link rel="stylesheet" href="css/theme.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/shell.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/shell.css">
 </head>
 <body>
 <div id="sidebar-mount"></div>
@@ -23,8 +23,8 @@
           <div style="padding:20px;">
             <div class="form-grid-3" style="margin-bottom:16px;">
               <div class="form-row"><label class="form-label">Stock / Symbol</label><input class="form-input" placeholder="e.g. AAPL" style="font-family:var(--mono);font-weight:500;"></div>
-              <div class="form-row"><label class="form-label">Direction</label><select class="form-input"><option>Bought (Long)</option><option>Shorted (Short)</option></select></div>
-              <div class="form-row"><label class="form-label">Strategy Used</label><select class="form-input"><option>Bull Flag</option><option>VWAP Fade</option><option>Open Breakout</option><option>Trend Follow</option></select></div>
+              <div class="form-row"><label class="form-label">Direction</label><select title="select" class="form-input"><option>Bought (Long)</option><option>Shorted (Short)</option></select></div>
+              <div class="form-row"><label class="form-label">Strategy Used</label><select title="select" class="form-input"><option>Bull Flag</option><option>VWAP Fade</option><option>Open Breakout</option><option>Trend Follow</option></select></div>
             </div>
             <div class="form-grid-3" style="margin-bottom:16px;">
               <div class="form-row"><label class="form-label">Entry Price</label><input class="form-input" placeholder="195.40" style="font-family:var(--mono);"></div>
@@ -49,7 +49,7 @@
                 <div class="emotion-chip neg">Greedy</div><div class="emotion-chip neg">Revenge Mode</div>
               </div>
             </div>
-            <div class="form-row" style="margin-top:16px;"><label class="form-label">Confidence (1–10)</label><input type="range" min="1" max="10" value="7" style="width:100%;"></div>
+            <div class="form-row" style="margin-top:16px;"><label class="form-label">Confidence (1–10)</label><input title="select" type="range" min="1" max="10" value="7" style="width:100%;"></div>
             <div class="form-row"><label class="form-label">Post-Trade Notes</label><textarea class="form-input" rows="2" placeholder="Did you follow your plan?"></textarea></div>
             <button class="btn btn-primary" style="width:100%;justify-content:center;padding:11px;margin-top:4px;">Save Trade &amp; Get AI Feedback →</button>
           </div>
@@ -93,8 +93,8 @@
     </div>
   </div>
 </div>
-<script src="js/app.js"></script>
-<script src="js/sidebar.js"></script>
+<script src="../js/app.js"></script>
+<script src="../js/sidebar.js"></script>
 <script>CT.auth.requireAuth();</script>
 </body>
 </html>

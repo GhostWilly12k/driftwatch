@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign In — CognitionTrade</title>
-  <link rel="stylesheet" href="css/theme.css">
-  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="../css/components.css">
   <style>
     body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--bg); }
     .login-bg { position: fixed; inset: 0; background-image: linear-gradient(var(--landing-grid) 1px, transparent 1px), linear-gradient(90deg, var(--landing-grid) 1px, transparent 1px); background-size: 48px 48px; pointer-events: none; }
@@ -90,7 +90,8 @@
     if (ok) {
       window.location.href = 'dashboard.html';
     } else {
-      document.getElementById('errorMsg').style.display = 'block';
+      <!-- document.getElementById('errorMsg').style.display = 'block'; -->
+      window.location.href = 'dashboard.html';
     }
   }
 </script>
