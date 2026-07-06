@@ -52,6 +52,10 @@ open pages/index.html
 npx serve pages/
 # or
 python3 -m http.server 3000 --directory pages/
+
+# Create .venv + install dependencies
+python3 -m venv .venv
+pip install -r requirements.txt
 ```
 
 **All pages link to `css/` and `js/` with relative paths** — they work from the `pages/` directory as the root.
@@ -154,7 +158,7 @@ backend/
 ### Database
 
 ```
-PostgreSQL 16
+PostgreSQL 17
   + TimescaleDB extension   → time-series trade data, fast date-range queries
   + pgvector extension      → vector embeddings for semantic trade search
 
