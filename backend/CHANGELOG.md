@@ -8,6 +8,7 @@ All notable changes to this project are documented in this file.
 - Initial Alembic migration: users, user_settings, trades tables
 - trades table partitioned monthly via pg_partman (extensions.create_parent), maintenance scheduled via pg_cron
 - FastAPI app skeleton: app/main.py, CORS middleware, global exception handlers, router stubs for auth/trades/agents, /health endpoint
+-Vercel frontend deployment of /pages
 
 ### Changed
 - TimescaleDB replaced with pg_partman for trades partitioning (Supabase deprecated TimescaleDB on PostgreSQL 17). Downstream tasks flagged for review: T-005, T-025, T-032, T-033, T-038, T-065, Milestone 2, Risk Register
