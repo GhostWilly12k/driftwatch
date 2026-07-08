@@ -1,0 +1,9 @@
+site_name: CognitionTrade Developer Docs
+docs_dir: ../docs
+theme:
+  name: material
+nav:
+  - Home: index.md
+  - ADRs:
+      - ADR-001: adr/ADR-001-fastapi-over-drf.md
+      - ADR-002: adr/ADR-002-pg-partman-partitioning.md
