@@ -1,14 +1,15 @@
-# Changelog
-
-All notable changes to this project are documented in this file.
-
 ## [0.1.0] - 2026-07-07 (Sprint 0)
 
 ### Added
 - Initial Alembic migration: users, user_settings, trades tables
 - trades table partitioned monthly via pg_partman (extensions.create_parent), maintenance scheduled via pg_cron
 - FastAPI app skeleton: app/main.py, CORS middleware, global exception handlers, router stubs for auth/trades/agents, /health endpoint
--Vercel frontend deployment of /pages
+- Vercel frontend deployment of /pages
+- pgvector extension enabled on Supabase
+- README rewritten: split into "Current Setup (Phase 1/Sprint 0)" and "Full Product Architecture (Roadmap)" to prevent aspirational content from being followed as setup instructions; TimescaleDB references corrected to pg_partman throughout
+- MkDocs site initialised (docs-site/), configured with docs_dir pointing at root docs/ as the single content source
+- ADR-001: FastAPI over Django REST Framework
+- ADR-002: pg_partman over TimescaleDB for trade partitioning (supersedes original plan framing)
 
 ### Changed
 - TimescaleDB replaced with pg_partman for trades partitioning (Supabase deprecated TimescaleDB on PostgreSQL 17). Downstream tasks flagged for review: T-005, T-025, T-032, T-033, T-038, T-065, Milestone 2, Risk Register
@@ -17,3 +18,7 @@ All notable changes to this project are documented in this file.
 ### Fixed
 - app/models/ directory caused namespace resolution failures; flattened to app/models.py
 - Supabase IPv4/IPv6 connection issue resolved via connection pooler with postgres.[project-ref] username format
+- docs/index.md UTF-8 BOM encoding issue (PowerShell `>` redirection writes UTF-16LE) blocking `mkdocs serve`
+
+### Known Issues / Carried Over
+- T-009 (GitHub Actions CI: lint + type-check) blocked on an external GitHub issue; not yet resolved as of Sprint 0 close. Task throughput unaffected, so no Risk Register entry opened — rolling into Sprint 1 as an explicit carry-over item.
