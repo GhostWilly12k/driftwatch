@@ -6,3 +6,9 @@ pydantic-settings
 fastapi[standard]
 mkdocs 
 mkdocs-material
+sqlalchemy
+alembic
+psycopg2-binary
+python-jose
+bcrypt
+pytest

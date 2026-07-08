@@ -1,3 +1,13 @@
+## [Unreleased] - Sprint 1
+
+### Added
+- User model extended with `password_hash` column (migration `8f2a1c9d4b6e`, chained after `5b7e604fe446`)
+- `app/schemas.py`: `UserCreate`, `UserRead` Pydantic schemas
+- `tests/test_user_schemas.py`: 5 unit tests covering validation and ORM-to-schema mapping
+
+### Fixed
+- `app/routers/__inti__.py` typo'd filename corrected to `__init__.py`
+
 ## [0.1.0] - 2026-07-07 (Sprint 0)
 
 ### Added
