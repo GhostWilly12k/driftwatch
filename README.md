@@ -1,6 +1,10 @@
 # CognitionTrade — AI Trading Journal
 
-A full-stack AI-powered trading journal with 5 specialized agents, calendar trade history, execution gap analysis, tilt detection, and a personalized market briefing.
+A full-stack AI-powered trading journal: calendar trade history, execution gap analysis, tilt detection, and a multi-agent AI coaching system.
+
+**Status:** Phase 1, Sprint 0 (Environment & Foundation) — in progress. See [CHANGELOG.md](./CHANGELOG.md) for what's actually shipped so far, and `CognitionTrade_Phase1_Agile_Plan_FINAL.docx` for the full sprint plan.
+
+> This README is split in two: **Current Setup**, which reflects exactly what's built and decided as of Sprint 0, and **Full Product Architecture (Roadmap)**, which is the long-range design blueprint for Phase 2 and beyond. Anything in the roadmap section is not implemented yet — don't follow it as setup instructions.
 
 ---
 
@@ -8,7 +12,7 @@ A full-stack AI-powered trading journal with 5 specialized agents, calendar trad
 
 ```
 cognitiontrade/
-├── pages/                  # All HTML pages
+├── pages/                  # All HTML pages (frontend, mock-data stage)
 │   ├── index.html          # Landing / marketing page
 │   ├── login.html          # Sign in page
 │   ├── dashboard.html      # Main app dashboard
@@ -16,14 +20,14 @@ cognitiontrade/
 │   ├── trades.html         # Trade history calendar
 │   ├── performance.html    # Performance analytics
 │   ├── strategy.html       # Execution review / gap analysis
-│   ├── researcher.html     # Market briefing
-│   ├── chat.html           # AI Coach chat
+│   ├── researcher.html     # Market briefing (UI shell — backend is Phase 2, out of scope for Phase 1)
+│   ├── chat.html           # AI Coach chat (UI shell — backend is Phase 2, out of scope for Phase 1)
 │   └── settings.html       # Settings (profile, appearance, etc.)
 │
 ├── css/
 │   ├── theme.css           # CSS variables (dark/light tokens) + base reset
 │   ├── components.css      # Buttons, cards, tables, forms, calendar, chat, etc.
-│   ├── shell.css           # Sidebar, topbar, layout
+│   ├── shell.css            # Sidebar, topbar, layout
 │   └── landing.css         # Landing page styles
 │
 ├── js/
@@ -32,33 +36,198 @@ cognitiontrade/
 │   ├── charts.js           # All Chart.js instances (equity, monthly, MAE/MFE, sentiment)
 │   └── calendar.js         # Calendar render, month navigation, day drill-down
 │
-├── assets/                 # Icons, logo, images (add as needed)
+├── backend/
+│   ├── app/
+│   │   ├── main.py         # FastAPI entry point, CORS, exception handlers, router stubs
+│   │   ├── models.py        # SQLAlchemy ORM models (flat file — see note below)
+│   │   └── db.py           # Database connection
+│   ├── alembic/             # Migrations (initial revision: users, user_settings, trades)
+│   ├── requirements.txt
+│   └── .env                # Not committed — see Environment Variables below
+│
+├── assets/                 # Icons, logo, images
 └── README.md
 ```
 
+> **Note on `app/models.py`:** this is deliberately a flat module, not an `app/models/` package. A package directory here caused namespace resolution failures during Sprint 0 (see CHANGELOG 0.1.0 → Fixed). Keep it flat unless you have a specific reason to split it, and if you do split it, test imports carefully first.
+
 ---
 
-## Getting Started (Frontend only)
+## Current Setup (Phase 1 / Sprint 0)
+
+These are the actual steps to reproduce the working local environment as of Sprint 0. This supersedes anything about setup found in the Roadmap section further down.
+
+### Prerequisites
+
+- Python 3.11+
+- A Supabase project (PostgreSQL 17)
+- An Upstash Redis instance
+- Node.js only if you want to run the frontend through `npx serve` instead of Python's http.server
+
+### 1. Clone and set up the virtual environment
 
 ```bash
-# Clone the repo
-git clone https://github.com/YOUR_USERNAME/cognitiontrade.git
-cd cognitiontrade
+git clone https://github.com/GhostWilly12k/driftwatch.git
+cd driftwatch/backend
 
-# No build step needed — open directly in browser
-open pages/index.html
-
-# Or serve with any static server:
-npx serve pages/
-# or
-python3 -m http.server 3000 --directory pages/
-
-# Create .venv + install dependencies
 python3 -m venv .venv
-pip install -r requirements.txt
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
+
+pip install fastapi "uvicorn[standard]" sqlalchemy alembic psycopg2-binary python-jose bcrypt redis anthropic
 ```
 
-**All pages link to `css/` and `js/` with relative paths** — they work from the `pages/` directory as the root.
+### 2. Provision Supabase (PostgreSQL 17)
+
+Create a project at supabase.com. Then, in Project Settings → Database, grab the **connection pooler** string, not the direct connection string — direct connections from local dev hit IPv4/IPv6 resolution issues on some networks. The pooler string uses the `postgres.[project-ref]` username format:
+
+```
+postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
+```
+
+Put this in `.env` as `DATABASE_URL`.
+
+> TimescaleDB is **not** used for the `trades` table. Supabase deprecated TimescaleDB support on PostgreSQL 17, so partitioning is done with native Postgres `PARTITION BY RANGE (entered_at)` plus the `pg_partman` extension. See the schema section below and CHANGELOG 0.1.0 for details.
+
+### 3. Provision Upstash Redis
+
+Create a Redis database at upstash.com, copy the `REDIS_URL`, and put it in `.env`.
+
+### 4. Create `.env`
+
+```bash
+cp .env.example .env
+```
+
+Fill in at minimum:
+
+```
+DATABASE_URL=postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
+REDIS_URL=redis://default:[password]@[endpoint].upstash.io:[port]
+JWT_SECRET=<generate a long random string>
+ANTHROPIC_API_KEY=<your key>
+```
+
+### 5. Run the migration
+
+The initial Alembic migration (creating `users`, `user_settings`, and the partitioned `trades` table) is already written and committed.
+
+```bash
+alembic upgrade head
+```
+
+If you ever regenerate a migration with `alembic revision --autogenerate`, check the diff before applying it — pg_partman's internal tables (`part_config`, `part_config_sub`) tend to show up as tables autogenerate wants to drop. Remove those lines from the migration file manually; they're pg_partman's own bookkeeping tables, not yours to touch.
+
+### 6. Run the backend
+
+```bash
+uvicorn app.main:app --reload
+```
+
+Confirm `http://localhost:8000/docs` loads (Swagger UI) and `http://localhost:8000/health` returns OK.
+
+### 7. Run the frontend
+
+```bash
+cd ../pages
+python3 -m http.server 3000
+# or: npx serve .
+```
+
+Open `http://localhost:3000/index.html`. All pages currently run on mock data (`TRADES_BY_DATE` in `app.js`, mock `CT.auth`) — wiring to the real API happens sprint-by-sprint per the plan (see "Replacing Mock Data with Real API" below).
+
+---
+
+## Database Schema (Current)
+
+```sql
+-- Users
+CREATE TABLE users (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email        TEXT UNIQUE NOT NULL,
+  name         TEXT,
+  plan         TEXT DEFAULT 'starter',
+  avatar_url   TEXT,
+  created_at   TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- User Settings
+CREATE TABLE user_settings (
+  user_id         UUID REFERENCES users(id) ON DELETE CASCADE,
+  account_size    NUMERIC DEFAULT 10000,
+  risk_per_trade  NUMERIC DEFAULT 1.0,
+  daily_max_loss  NUMERIC DEFAULT 200,
+  weekly_max_loss NUMERIC DEFAULT 600,
+  theme           TEXT DEFAULT 'dark',
+  agent_config    JSONB DEFAULT '{}',
+  notif_config    JSONB DEFAULT '{}',
+  PRIMARY KEY (user_id)
+);
+
+-- Trades — native Postgres range partitioning via pg_partman, NOT a TimescaleDB hypertable
+CREATE TABLE trades (
+  id              UUID DEFAULT gen_random_uuid(),
+  user_id         UUID REFERENCES users(id) ON DELETE CASCADE,
+  symbol          TEXT NOT NULL,
+  direction       TEXT NOT NULL,
+  strategy        TEXT,
+  entry_price     NUMERIC,
+  exit_price      NUMERIC,
+  stop_loss       NUMERIC,
+  profit_target   NUMERIC,
+  planned_entry   NUMERIC,
+  planned_stop    NUMERIC,
+  quantity        NUMERIC,
+  r_result        NUMERIC,
+  mae             NUMERIC,
+  mfe             NUMERIC,
+  mindset         TEXT,
+  emotion_pre     JSONB,
+  confidence      INTEGER,
+  rationale       TEXT,
+  post_notes      TEXT,
+  chart_url       TEXT,
+  psychology_tags JSONB,
+  rule_breaks     JSONB,
+  entered_at      TIMESTAMPTZ NOT NULL,
+  exited_at       TIMESTAMPTZ,
+  created_at      TIMESTAMPTZ DEFAULT NOW(),
+  PRIMARY KEY (id, entered_at)     -- composite PK required by native partitioning
+) PARTITION BY RANGE (entered_at);
+
+-- Partitioning managed by pg_partman (extensions schema, not partman)
+SELECT extensions.create_parent(
+  p_parent_table   => 'public.trades',
+  p_control        => 'entered_at',
+  p_interval       => '1 month',   -- pg_partman 5.3.1 requires this literal, not 'monthly'
+  p_premake        => 4
+);
+
+-- Maintenance (creates future partitions on schedule)
+CALL extensions.run_maintenance_proc();
+-- Scheduled via pg_cron (cron schema, even though the extension itself lives in pg_catalog)
+-- e.g. SELECT cron.schedule('partman-maintenance', '0 3 * * *', $$CALL extensions.run_maintenance_proc()$$);
+
+CREATE INDEX ON trades (user_id, entered_at DESC);
+```
+
+**Composite key impact:** any table that has a foreign key into `trades` (e.g. `alerts`, `trade_embeddings` — see roadmap below) must carry `entered_at` alongside the trade `id`, since the primary key on `trades` is now `(id, entered_at)` rather than just `id`. Flagged as a downstream item on: T-025, T-032, T-033, T-038, T-065, Milestone 2, and the Risk Register.
+
+Seven monthly partitions plus a default partition are live and verified as of Sprint 0.
+
+`trade_embeddings`, `agent_memory`, and `broker_connections` tables are **not yet migrated** — they belong to the Phase 2 architecture in the Roadmap section.
+
+---
+
+## Environment Variables
+
+| Variable | Used for | Where to get it |
+|---|---|---|
+| `DATABASE_URL` | Supabase Postgres connection (pooler format) | Supabase → Project Settings → Database |
+| `REDIS_URL` | Session blocklist, caching | Upstash → your Redis database |
+| `JWT_SECRET` | Signing auth tokens | Generate locally (e.g. `openssl rand -hex 32`) |
+| `ANTHROPIC_API_KEY` | AI agent calls (Sprint 4+) | console.anthropic.com |
+
+Keep `.env.example` in sync whenever a new variable is introduced — this is part of the Definition of Done for every task per the plan (§8).
 
 ---
 
@@ -72,7 +241,7 @@ pip install -r requirements.txt
 | All app pages | → `login.html` (Sign Out button calls `CT.auth.logout()`) |
 | Settings | → `login.html` (Sign Out in settings nav) |
 
-**Auth flow:** `CT.auth.requireAuth()` is called at the bottom of every protected page. If there's no session in `localStorage`, it redirects to `login.html`. The mock login accepts any email + password.
+**Auth flow:** `CT.auth.requireAuth()` is called at the bottom of every protected page. If there's no session in `localStorage`, it redirects to `login.html`. The mock login currently accepts any email + password — this is replaced by real JWT auth in Sprint 1.
 
 ---
 
@@ -87,7 +256,7 @@ pip install -r requirements.txt
 
 ## Replacing Mock Data with Real API
 
-In `js/app.js`, the `TRADES_BY_DATE` object and `CT.auth` methods are clearly marked for replacement:
+In `js/app.js`, the `TRADES_BY_DATE` object and `CT.auth` methods are clearly marked for replacement, sprint by sprint per the plan:
 
 ```js
 // Replace CT.auth.login() with:
@@ -100,7 +269,7 @@ const { token, user } = await res.json();
 localStorage.setItem('ct-session', JSON.stringify({ token, ...user }));
 
 // Replace TRADES_BY_DATE with:
-const res = await fetch('/api/trades?month=2026-03', {
+const res = await fetch('/api/trades?month=2026-07', {
   headers: { Authorization: `Bearer ${CT.auth.getUser().token}` }
 });
 const trades = await res.json();
@@ -108,19 +277,33 @@ const trades = await res.json();
 
 ---
 
-## Recommended Tech Stack for Backend
+## Documentation & Changelog
 
-See **Backend Implementation** section below.
+- **[CHANGELOG.md](./CHANGELOG.md)** — Keep a Changelog format, updated at every Sprint Review. This is the source of truth for what's actually done; if it's not in there, treat it as not shipped yet.
+- **ADRs** — `docs/adr/` (to be initialized in Sprint 0 per plan §7.2–7.4). Planned: ADR-001 (FastAPI), ADR-002 (partitioning strategy — update from the original "TimescaleDB" framing to pg_partman), ADR-003 (JWT auth), ADR-004 (LangGraph, Phase 2), ADR-005 (Supabase Storage), ADR-006 (Tactical HUD design system, Sprint 6).
+- **Full plan** — `CognitionTrade_Phase1_Agile_Plan_FINAL.docx`, sprints 0–6, tasks, user stories, velocity tracking, risk register.
+
+---
+
+## Team
+
+| Role | Who |
+|---|---|
+| Product Owner | You |
+| Scrum Master | AI (Claude) |
+| Developer | You + Claude |
 
 ---
 
 ---
 
-# Backend Implementation — Full Blueprint
+# Full Product Architecture (Roadmap — Phase 2+)
+
+**Everything below this line is the long-range design blueprint, not the current implementation.** Phase 1 explicitly excludes the Researcher agent, the Performance agent beyond basic R-math, Registrar/full multi-agent synthesis, broker integrations, Celery scheduled tasks, Mem0, and pgvector semantic search in chat (see plan §1.2). Treat this section as a reference for where the project is headed, not as setup instructions.
 
 ## Overview
 
-The backend powers 5 main concerns:
+The backend, at full scope, powers 5 concerns:
 
 1. **Auth** — JWT sessions, OAuth
 2. **Trade CRUD** — storing, retrieving, updating trades
@@ -128,135 +311,33 @@ The backend powers 5 main concerns:
 4. **Broker Integrations** — auto-importing trades from IBKR, Schwab, etc.
 5. **Reports & Alerts** — scheduled weekly reports, real-time tilt notifications
 
----
-
-## Phase 1 — Tech Stack Selection
-
-### Core Framework
-**FastAPI (Python)** — async, fast, auto-generates OpenAPI docs, excellent AI/ML ecosystem.
-
-```
-backend/
-├── app/
-│   ├── main.py             # FastAPI app entry point
-│   ├── api/
-│   │   ├── auth.py         # /api/auth/* routes
-│   │   ├── trades.py       # /api/trades/* routes
-│   │   ├── agents.py       # /api/agents/* routes (chat, analysis)
-│   │   ├── brokers.py      # /api/brokers/* routes
-│   │   └── settings.py     # /api/settings/* routes
-│   ├── models/             # SQLAlchemy ORM models
-│   ├── schemas/            # Pydantic request/response schemas
-│   ├── agents/             # LangGraph agent nodes
-│   ├── services/           # Business logic
-│   └── db.py               # Database connection
-├── alembic/                # Database migrations
-├── requirements.txt
-└── .env
-```
-
-### Database
-
-```
-PostgreSQL 17
-  + TimescaleDB extension   → time-series trade data, fast date-range queries
-  + pgvector extension      → vector embeddings for semantic trade search
-
-Redis 7                     → session cache, real-time alert queues, agent state
-```
-
-### AI / Agents
+## Tech Stack (Full Vision)
 
 ```
 LangGraph          → multi-agent orchestration (graph-based state machine)
 LangChain          → LLM wrapper, tool use, memory
-Anthropic Claude   → primary LLM (claude-sonnet-4-6 for agents)
+Anthropic Claude   → primary LLM for agents
 OpenAI GPT-4o      → chart vision / multimodal analysis (or use Claude's vision)
 Mem0               → long-term memory layer (compresses old sessions)
 LangSmith          → agent observability, tracing, debugging
-```
 
-### Infrastructure
-
-```
 Supabase           → PostgreSQL hosting + Row-Level Security + Auth helpers
 Upstash Redis      → serverless Redis for queues and cache
-Railway / Render   → backend deployment
+Railway            → backend deployment
 Vercel             → frontend deployment (static HTML/CSS/JS)
-AWS S3 / Cloudflare R2  → chart image uploads
+Cloudflare R2 / Supabase Storage → chart image uploads
 ```
 
----
-
-## Phase 2 — Database Schema
-
-### Core Tables
+## Future Schema Additions
 
 ```sql
--- Users
-CREATE TABLE users (
-  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  email        TEXT UNIQUE NOT NULL,
-  name         TEXT,
-  plan         TEXT DEFAULT 'starter',  -- starter | pro | team
-  avatar_url   TEXT,
-  created_at   TIMESTAMPTZ DEFAULT NOW()
-);
-
--- User Settings
-CREATE TABLE user_settings (
-  user_id         UUID REFERENCES users(id) ON DELETE CASCADE,
-  account_size    NUMERIC DEFAULT 10000,
-  risk_per_trade  NUMERIC DEFAULT 1.0,    -- percentage
-  daily_max_loss  NUMERIC DEFAULT 200,
-  weekly_max_loss NUMERIC DEFAULT 600,
-  theme           TEXT DEFAULT 'dark',
-  agent_config    JSONB DEFAULT '{}',     -- which agents are enabled
-  notif_config    JSONB DEFAULT '{}',     -- notification preferences
-  PRIMARY KEY (user_id)
-);
-
--- Trades (TimescaleDB hypertable — partitioned by entered_at)
-CREATE TABLE trades (
-  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id         UUID REFERENCES users(id) ON DELETE CASCADE,
-  symbol          TEXT NOT NULL,
-  direction       TEXT NOT NULL,          -- long | short
-  strategy        TEXT,
-  entry_price     NUMERIC,
-  exit_price      NUMERIC,
-  stop_loss       NUMERIC,
-  profit_target   NUMERIC,
-  planned_entry   NUMERIC,
-  planned_stop    NUMERIC,
-  quantity        NUMERIC,
-  r_result        NUMERIC,                -- calculated R-multiple
-  mae             NUMERIC,               -- max adverse excursion
-  mfe             NUMERIC,               -- max favorable excursion
-  mindset         TEXT,                  -- Focused | Impulsive | etc.
-  emotion_pre     JSONB,                 -- array of emotion tags
-  confidence      INTEGER,              -- 1-10
-  rationale       TEXT,                 -- why they took the trade
-  post_notes      TEXT,
-  chart_url       TEXT,                 -- S3 key for uploaded chart
-  psychology_tags JSONB,               -- AI-generated tags
-  rule_breaks     JSONB,               -- rule violations detected
-  entered_at      TIMESTAMPTZ NOT NULL,
-  exited_at       TIMESTAMPTZ,
-  created_at      TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Make trades a TimescaleDB hypertable
-SELECT create_hypertable('trades', 'entered_at');
-
--- Index for fast user + date queries
-CREATE INDEX ON trades (user_id, entered_at DESC);
-
--- Trade Embeddings (pgvector — for semantic search)
+-- Trade Embeddings (pgvector — semantic search, Phase 2)
 CREATE TABLE trade_embeddings (
-  trade_id    UUID REFERENCES trades(id) ON DELETE CASCADE PRIMARY KEY,
-  embedding   VECTOR(1536),             -- OpenAI/Claude embedding
-  summary     TEXT                      -- human-readable summary for retrieval
+  trade_id    UUID NOT NULL,
+  entered_at  TIMESTAMPTZ NOT NULL,   -- required alongside trade_id (see composite PK note above)
+  embedding   VECTOR(1536),
+  summary     TEXT,
+  FOREIGN KEY (trade_id, entered_at) REFERENCES trades(id, entered_at) ON DELETE CASCADE
 );
 CREATE INDEX ON trade_embeddings USING ivfflat (embedding vector_cosine_ops);
 
@@ -264,7 +345,7 @@ CREATE INDEX ON trade_embeddings USING ivfflat (embedding vector_cosine_ops);
 CREATE TABLE agent_memory (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id     UUID REFERENCES users(id) ON DELETE CASCADE,
-  memory_type TEXT,                     -- behavioral | strategy | preference
+  memory_type TEXT,
   content     TEXT,
   embedding   VECTOR(1536),
   created_at  TIMESTAMPTZ DEFAULT NOW(),
@@ -275,8 +356,8 @@ CREATE TABLE agent_memory (
 CREATE TABLE broker_connections (
   id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id      UUID REFERENCES users(id) ON DELETE CASCADE,
-  broker       TEXT NOT NULL,           -- ibkr | schwab | tdameritrade
-  credentials  JSONB,                  -- encrypted API keys/tokens
+  broker       TEXT NOT NULL,
+  credentials  JSONB,
   last_sync    TIMESTAMPTZ,
   is_active    BOOLEAN DEFAULT TRUE,
   created_at   TIMESTAMPTZ DEFAULT NOW()
@@ -286,22 +367,18 @@ CREATE TABLE broker_connections (
 CREATE TABLE alerts (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id     UUID REFERENCES users(id) ON DELETE CASCADE,
-  alert_type  TEXT NOT NULL,           -- tilt | daily_limit | gap | briefing
+  entered_at  TIMESTAMPTZ,            -- required if referencing a specific trade (composite PK)
+  alert_type  TEXT NOT NULL,
   payload     JSONB,
   is_read     BOOLEAN DEFAULT FALSE,
   created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 ```
 
----
-
-## Phase 3 — Auth Implementation
-
-### JWT + OAuth
+## Auth (Phase 1, real code lands Sprint 1)
 
 ```python
 # app/api/auth.py
-
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer
 import jwt, bcrypt
@@ -316,21 +393,17 @@ async def login(email: str, password: str, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == email).first()
     if not user or not bcrypt.checkpw(password.encode(), user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    
     token = jwt.encode({
         "sub": str(user.id),
         "exp": datetime.utcnow() + timedelta(days=30)
     }, SECRET, algorithm="HS256")
-    
     return {"token": token, "user": {"id": user.id, "name": user.name, "email": user.email, "plan": user.plan}}
 
 @router.post("/logout")
 async def logout(token: str = Depends(oauth2_scheme)):
-    # Add token to Redis blocklist
     redis.setex(f"blocklist:{token}", 60 * 60 * 24 * 30, "1")
     return {"ok": True}
 
-# Dependency — use on all protected routes
 async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     try:
         payload = jwt.decode(token, SECRET, algorithms=["HS256"])
@@ -342,24 +415,18 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         raise HTTPException(status_code=401, detail="Token expired")
 ```
 
-**For OAuth (Google/GitHub):** Use `authlib` with FastAPI. On callback, upsert the user in the DB and return a JWT as above.
+**OAuth (Google/GitHub):** use `authlib` with FastAPI; on callback, upsert the user and return a JWT as above. (Explicitly de-scoped from Phase 1 per the Risk Register — auth is non-negotiable, OAuth can move to Phase 2 if Sprint 1 runs long.)
 
----
-
-## Phase 4 — Trade API
+## Trade API (Phase 1, real code lands Sprint 2)
 
 ```python
 # app/api/trades.py
 
 @router.get("/trades")
 async def get_trades(
-    month: str = None,          # "2026-03" — used by calendar
-    symbol: str = None,
-    strategy: str = None,
-    limit: int = 100,
-    offset: int = 0,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    month: str = None, symbol: str = None, strategy: str = None,
+    limit: int = 100, offset: int = 0,
+    user: User = Depends(get_current_user), db: Session = Depends(get_db)
 ):
     query = db.query(Trade).filter(Trade.user_id == user.id)
     if month:
@@ -370,59 +437,38 @@ async def get_trades(
         )
     return query.order_by(Trade.entered_at.desc()).offset(offset).limit(limit).all()
 
-
 @router.post("/trades")
 async def create_trade(trade: TradeCreate, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    # 1. Calculate R-multiple
     r = (trade.exit_price - trade.entry_price) / (trade.entry_price - trade.stop_loss)
-    
-    # 2. Save trade
     db_trade = Trade(**trade.dict(), user_id=user.id, r_result=r)
     db.add(db_trade)
     db.commit()
-    
-    # 3. Trigger agents asynchronously (Celery task or background task)
     background_tasks.add_task(run_post_trade_agents, db_trade.id, user.id)
-    
     return db_trade
-
 
 @router.get("/trades/calendar")
 async def get_calendar_summary(
     year: int, month: int,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    user: User = Depends(get_current_user), db: Session = Depends(get_db)
 ):
-    """Returns per-day trade summary for the calendar view."""
     trades = db.query(Trade).filter(
         Trade.user_id == user.id,
         extract('year', Trade.entered_at) == year,
         extract('month', Trade.entered_at) == month
     ).all()
-    
-    # Group by date
     by_date = {}
     for t in trades:
         d = t.entered_at.date().isoformat()
-        if d not in by_date:
-            by_date[d] = {"trades": [], "total_r": 0, "wins": 0, "losses": 0}
+        by_date.setdefault(d, {"trades": [], "total_r": 0, "wins": 0, "losses": 0})
         by_date[d]["trades"].append(t)
         by_date[d]["total_r"] += t.r_result or 0
-        if (t.r_result or 0) > 0:
-            by_date[d]["wins"] += 1
-        else:
-            by_date[d]["losses"] += 1
-    
+        by_date[d]["wins" if (t.r_result or 0) > 0 else "losses"] += 1
     return by_date
 ```
 
----
+## AI Agent System (LangGraph) — Phase 1 delivers Journal Analyst (Sprint 4) and Strategy Coach (Sprint 5) only
 
-## Phase 5 — AI Agent System (LangGraph)
-
-This is the core of CognitionTrade. Each agent is a LangGraph node.
-
-### Agent Architecture
+Full vision architecture (Performance, Researcher, and Registrar nodes are Phase 2):
 
 ```
                     ┌─────────────────────────────────────┐
@@ -439,48 +485,37 @@ This is the core of CognitionTrade. Each agent is a LangGraph node.
         └────────────┘ └──────────┘ └────────┘ └──────────┘
 ```
 
-### State Definition
-
 ```python
 # app/agents/state.py
 from typing import TypedDict, List, Optional
-from langgraph.graph import MessagesState
 
 class TradeJournalState(TypedDict):
-    # Input
     user_id: str
     trade_id: str
-    trade_data: dict          # raw trade object
+    trade_data: dict
 
-    # Journal Analyst outputs
-    chart_analysis: Optional[dict]   # extracted from chart image
+    chart_analysis: Optional[dict]
     psychology_tags: List[str]
     rationale_verified: bool
 
-    # Performance Agent outputs
     r_multiple: float
     expectancy: float
     win_rate: float
     mae_mfe: dict
 
-    # Researcher outputs
     market_context: dict
     relevant_news: List[dict]
     sentiment_score: float
 
-    # Strategy Coach outputs
     execution_gap: dict
     tilt_detected: bool
-    tilt_type: Optional[str]   # revenge | hesitation | overconfidence
+    tilt_type: Optional[str]
     recommendations: List[str]
 
-    # Final output
     summary: str
     alerts: List[dict]
-    messages: List[dict]       # LangGraph message history
+    messages: List[dict]
 ```
-
-### Graph Definition
 
 ```python
 # app/agents/graph.py
@@ -489,330 +524,68 @@ from .nodes import journal_analyst, performance_agent, researcher, strategy_coac
 
 def build_agent_graph():
     graph = StateGraph(TradeJournalState)
-
-    # Add nodes
     graph.add_node("journal_analyst",  journal_analyst)
     graph.add_node("performance",      performance_agent)
     graph.add_node("researcher",       researcher)
     graph.add_node("strategy_coach",   strategy_coach)
     graph.add_node("registrar",        registrar)
-
-    # Entry point — always start with journal analyst
     graph.set_entry_point("journal_analyst")
-
-    # After journal analyst, run performance and researcher in parallel
     graph.add_edge("journal_analyst", "performance")
     graph.add_edge("journal_analyst", "researcher")
-
-    # After both finish, strategy coach synthesizes
     graph.add_edge("performance",  "strategy_coach")
     graph.add_edge("researcher",   "strategy_coach")
-
-    # Registrar compiles final report
     graph.add_edge("strategy_coach", "registrar")
     graph.add_edge("registrar", END)
-
     return graph.compile()
 ```
 
-### Agent Node Implementations
+Node implementations (journal analyst vision + psych tagging, performance R-math, researcher news/sentiment, strategy coach gap/tilt, registrar synthesis) follow the same structure as previously drafted — see git history for the full node code, or ask to have it regenerated against the current schema when Sprint 4/5 begins.
 
-```python
-# app/agents/nodes.py
-
-# ── JOURNAL ANALYST ──
-async def journal_analyst(state: TradeJournalState) -> TradeJournalState:
-    """Analyzes chart image + rationale text. Tags psychology."""
-    
-    client = anthropic.Anthropic()
-    
-    # 1. If chart image exists, use vision to extract levels
-    chart_analysis = None
-    if state["trade_data"].get("chart_url"):
-        image_b64 = await fetch_image_b64(state["trade_data"]["chart_url"])
-        response = client.messages.create(
-            model="claude-sonnet-4-6",
-            max_tokens=1000,
-            messages=[{
-                "role": "user",
-                "content": [
-                    {"type": "image", "source": {"type": "base64", "media_type": "image/png", "data": image_b64}},
-                    {"type": "text", "text": f"""
-                        Analyze this trading chart. Extract:
-                        1. Price levels visible (support, resistance, entry zone)
-                        2. Chart patterns present (bull flag, head & shoulders, etc.)
-                        3. Indicators visible and their readings
-                        4. Does this match the trader's stated rationale: "{state['trade_data']['rationale']}"?
-                        
-                        Respond as JSON: {{
-                          "price_levels": [...],
-                          "patterns": [...],
-                          "indicators": [...],
-                          "rationale_match": true/false,
-                          "rationale_score": 0-100,
-                          "notes": "..."
-                        }}
-                    """}
-                ]
-            }]
-        )
-        chart_analysis = json.loads(response.content[0].text)
-
-    # 2. NLP on rationale text — extract psychology tags
-    psych_response = client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=200,
-        messages=[{"role": "user", "content": f"""
-            Analyze the trader's pre-trade emotion tags and rationale.
-            Emotions: {state['trade_data']['emotion_pre']}
-            Rationale: "{state['trade_data']['rationale']}"
-            
-            Return JSON array of psychology tags from: 
-            [Focused, Impulsive, Revenge, FOMO, Hesitant, Overconfident, In the Zone, Anxious, Calm]
-            Example: ["FOMO", "Impulsive"]
-        """}]
-    )
-    psychology_tags = json.loads(psych_response.content[0].text)
-
-    return {
-        **state,
-        "chart_analysis": chart_analysis,
-        "psychology_tags": psychology_tags,
-        "rationale_verified": chart_analysis.get("rationale_match", True) if chart_analysis else True
-    }
-
-
-# ── PERFORMANCE AGENT ──
-async def performance_agent(state: TradeJournalState) -> TradeJournalState:
-    """Calculates R-multiple, expectancy, MAE/MFE. Pure math — no LLM needed."""
-    
-    t = state["trade_data"]
-    entry  = float(t["entry_price"])
-    exit_p = float(t["exit_price"])
-    stop   = float(t["stop_loss"])
-
-    # R-multiple formula
-    r = (exit_p - entry) / abs(entry - stop) if entry != stop else 0
-
-    # Fetch last 50 trades from DB for expectancy
-    recent_trades = await get_recent_trades(state["user_id"], limit=50)
-    wins   = [t for t in recent_trades if t.r_result > 0]
-    losses = [t for t in recent_trades if t.r_result <= 0]
-
-    win_rate    = len(wins) / len(recent_trades) if recent_trades else 0
-    avg_win_r   = sum(t.r_result for t in wins)   / len(wins)   if wins   else 0
-    avg_loss_r  = abs(sum(t.r_result for t in losses) / len(losses)) if losses else 0
-    expectancy  = (win_rate * avg_win_r) - ((1 - win_rate) * avg_loss_r)
-
-    return {
-        **state,
-        "r_multiple": round(r, 2),
-        "expectancy": round(expectancy, 3),
-        "win_rate": round(win_rate, 3),
-        "mae_mfe": {
-            "mae": float(t.get("mae", 0)),
-            "mfe": float(t.get("mfe", 0))
-        }
-    }
-
-
-# ── RESEARCHER ──
-async def researcher(state: TradeJournalState) -> TradeJournalState:
-    """Fetches market news relevant to the traded symbol."""
-    
-    symbol = state["trade_data"]["symbol"]
-    
-    # Fetch from news API (Benzinga / NewsAPI / Alpha Vantage)
-    news = await fetch_news(symbol, hours_back=24)
-    
-    # Score sentiment with Claude
-    if news:
-        client = anthropic.Anthropic()
-        sentiment_resp = client.messages.create(
-            model="claude-sonnet-4-6",
-            max_tokens=200,
-            messages=[{"role": "user", "content": f"""
-                Rate the overall market sentiment from these headlines for {symbol}.
-                Headlines: {[n['title'] for n in news[:5]]}
-                Return JSON: {{"score": -1.0 to 1.0, "label": "bullish/bearish/neutral", "key_event": "..."}}
-            """}]
-        )
-        sentiment = json.loads(sentiment_resp.content[0].text)
-    else:
-        sentiment = {"score": 0, "label": "neutral", "key_event": None}
-
-    return {
-        **state,
-        "market_context": sentiment,
-        "relevant_news": news[:3],
-        "sentiment_score": sentiment["score"]
-    }
-
-
-# ── STRATEGY COACH ──
-async def strategy_coach(state: TradeJournalState) -> TradeJournalState:
-    """Calculates execution gap. Detects tilt patterns."""
-    
-    t = state["trade_data"]
-    
-    # Execution gap calculation
-    entry_gap   = abs(float(t["entry_price"]) - float(t.get("planned_entry", t["entry_price"])))
-    stop_gap    = abs(float(t["stop_loss"])   - float(t.get("planned_stop", t["stop_loss"])))
-    planned_r   = abs(float(t.get("planned_entry", t["entry_price"])) - float(t.get("planned_stop", t["stop_loss"])))
-    
-    execution_gap = {
-        "entry_slippage_r": round(entry_gap / planned_r, 3) if planned_r else 0,
-        "stop_moved_r":     round(stop_gap  / planned_r, 3) if planned_r else 0,
-    }
-
-    # Tilt detection — check recent trade pattern
-    recent = await get_recent_trades(state["user_id"], limit=5)
-    tilt_detected = False
-    tilt_type = None
-
-    if recent:
-        last_trade = recent[0]
-        # Revenge trading: size increased >20% after a losing trade
-        if last_trade.r_result < 0 and float(t.get("quantity", 0)) > float(last_trade.quantity or 0) * 1.2:
-            tilt_detected = True
-            tilt_type = "revenge"
-        # Hesitation: entry more than 0.5R from planned
-        elif execution_gap["entry_slippage_r"] > 0.5:
-            tilt_detected = True
-            tilt_type = "hesitation"
-
-    recommendations = []
-    if tilt_detected:
-        if tilt_type == "revenge":
-            recommendations.append("Your position size increased significantly after a loss. Consider a 15-minute break before your next trade.")
-        elif tilt_type == "hesitation":
-            recommendations.append("Your entry was 0.5R+ from your planned price. Review this setup's historical win rate to build confidence.")
-
-    return {
-        **state,
-        "execution_gap": execution_gap,
-        "tilt_detected": tilt_detected,
-        "tilt_type": tilt_type,
-        "recommendations": recommendations
-    }
-
-
-# ── REGISTRAR (Supervisor) ──
-async def registrar(state: TradeJournalState) -> TradeJournalState:
-    """Synthesizes all agent outputs into a final summary. Handles Q&A."""
-    
-    client = anthropic.Anthropic()
-    
-    summary_prompt = f"""
-        You are the AI Coach for a trader. Synthesize this trade analysis into a 2-3 sentence 
-        coaching summary. Be specific, data-driven, and actionable.
-        
-        Trade: {state['trade_data']['symbol']} {state['trade_data']['direction']}
-        R Result: {state['r_multiple']}R
-        Psychology: {state['psychology_tags']}
-        Tilt detected: {state['tilt_detected']} ({state['tilt_type']})
-        Execution gap: {state['execution_gap']}
-        Market context: {state['market_context']}
-        Chart verified: {state['rationale_verified']}
-        Recommendations: {state['recommendations']}
-    """
-    
-    resp = client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=300,
-        messages=[{"role": "user", "content": summary_prompt}]
-    )
-
-    # Build alerts if needed
-    alerts = []
-    if state["tilt_detected"]:
-        alerts.append({"type": "tilt", "severity": "high", "message": f"Tilt pattern detected: {state['tilt_type']}"})
-
-    return {**state, "summary": resp.content[0].text, "alerts": alerts}
-```
-
----
-
-## Phase 6 — Natural Language Q&A (AI Coach Chat)
+## Natural Language Q&A (AI Coach Chat) — Phase 2
 
 ```python
 # app/api/agents.py
-
 @router.post("/agents/chat")
-async def chat(
-    message: str,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """Natural language Q&A over the user's full trade history."""
-    
-    # 1. Retrieve relevant memories + similar trades via pgvector
+async def chat(message: str, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     query_embedding = await get_embedding(message)
     similar_trades  = await vector_search(query_embedding, user.id, limit=10)
     memories        = await get_agent_memories(user.id)
-    
-    # 2. Compute key stats for context
-    stats = await compute_user_stats(user.id)  # win rate, expectancy, etc.
-    
-    # 3. Build context-rich prompt
+    stats = await compute_user_stats(user.id)
+
     context = f"""
-        You are the AI Coach for trader {user.name}. 
-        
-        Their trading stats (last 90 days):
-        - Win rate: {stats['win_rate']}%
-        - Expectancy: {stats['expectancy']}R
-        - Total trades: {stats['total_trades']}
-        - Top strategy: {stats['top_strategy']}
-        - Worst time window: {stats['worst_window']}
-        - Primary emotional pattern: {stats['primary_bias']}
-        
-        Relevant trade history:
-        {format_trades_for_context(similar_trades)}
-        
-        Long-term behavioral memories:
-        {memories}
-        
-        Answer the trader's question in a concise, specific, data-driven way.
-        Reference actual numbers from their history. Max 3 sentences.
+        You are the AI Coach for trader {user.name}.
+        Win rate: {stats['win_rate']}%, Expectancy: {stats['expectancy']}R,
+        Total trades: {stats['total_trades']}, Top strategy: {stats['top_strategy']}
+        Relevant trade history: {format_trades_for_context(similar_trades)}
+        Long-term behavioral memories: {memories}
+        Answer concisely and specifically, referencing actual numbers. Max 3 sentences.
     """
-    
     client = anthropic.Anthropic()
-    
-    # Stream the response for real-time chat feel
     with client.messages.stream(
-        model="claude-sonnet-4-6",
-        max_tokens=400,
-        system=context,
+        model="claude-sonnet-4-6", max_tokens=400, system=context,
         messages=[{"role": "user", "content": message}]
     ) as stream:
-        # Use FastAPI StreamingResponse
         async def event_stream():
             for text in stream.text_stream:
                 yield f"data: {json.dumps({'token': text})}\n\n"
             yield "data: [DONE]\n\n"
-        
         return StreamingResponse(event_stream(), media_type="text/event-stream")
 ```
 
----
-
-## Phase 7 — Broker Integrations
+## Broker Integrations — Phase 2, out of Phase 1 scope
 
 ```python
 # app/services/brokers/ibkr.py
-
-import ib_insync  # pip install ib_insync
+import ib_insync
 
 class IBKRBroker:
     async def fetch_trades(self, account_id: str, since: datetime) -> List[dict]:
         ib = ib_insync.IB()
         await ib.connectAsync('127.0.0.1', 7497, clientId=1)
-        
         trades = await ib.reqExecutionsAsync()
         return [self.normalize_trade(t) for t in trades if t.time >= since]
-    
+
     def normalize_trade(self, raw) -> dict:
-        """Maps IBKR trade format → CognitionTrade trade format."""
         return {
             "symbol": raw.contract.symbol,
             "direction": "long" if raw.execution.side == "BOT" else "short",
@@ -823,11 +596,10 @@ class IBKRBroker:
 ```
 
 ```python
-# app/services/brokers/schwab.py — uses OAuth2 + REST API
-
+# app/services/brokers/schwab.py — OAuth2 + REST
 class SchwabBroker:
     BASE_URL = "https://api.schwabapi.com/trader/v1"
-    
+
     async def fetch_trades(self, access_token: str, since: datetime) -> List[dict]:
         async with httpx.AsyncClient() as client:
             resp = await client.get(
@@ -835,17 +607,13 @@ class SchwabBroker:
                 headers={"Authorization": f"Bearer {access_token}"},
                 params={"fromEnteredTime": since.isoformat(), "status": "FILLED"}
             )
-            orders = resp.json()
-            return [self.normalize_trade(o) for o in orders]
+            return [self.normalize_trade(o) for o in resp.json()]
 ```
 
----
-
-## Phase 8 — Scheduled Tasks (Celery + Redis)
+## Scheduled Tasks (Celery + Redis) — Phase 2, out of Phase 1 scope
 
 ```python
 # app/tasks.py
-
 from celery import Celery
 from celery.schedules import crontab
 
@@ -853,35 +621,23 @@ celery = Celery("cognitiontrade", broker=os.getenv("REDIS_URL"))
 
 @celery.task
 def sync_broker_trades(user_id: str, broker: str):
-    """Called after trade entry or on schedule. Pulls new trades from broker."""
-    # ... fetch + upsert trades
+    """Pulls new trades from broker."""
 
 @celery.task
 def generate_weekly_report(user_id: str):
-    """Runs every Sunday 6pm. Generates narrative weekly report via Registrar agent."""
-    # ... run registrar agent with weekly scope
+    """Runs every Sunday 6pm. Narrative weekly report via Registrar agent."""
 
 @celery.task
 def send_premarket_briefing(user_id: str):
-    """Runs every trading day at 8:15 AM ET. Fetches news + VIX for user's watchlist."""
-    # ... run researcher agent + push notification
+    """Runs every trading day at 8:15 AM ET. Researcher agent + push notification."""
 
-# Scheduler (beat)
 celery.conf.beat_schedule = {
-    "weekly-reports": {
-        "task": "app.tasks.generate_weekly_report",
-        "schedule": crontab(hour=18, minute=0, day_of_week="sunday"),
-    },
-    "premarket-briefing": {
-        "task": "app.tasks.send_premarket_briefing",
-        "schedule": crontab(hour=13, minute=15),  # 8:15 AM ET = 13:15 UTC
-    },
+    "weekly-reports": {"task": "app.tasks.generate_weekly_report", "schedule": crontab(hour=18, minute=0, day_of_week="sunday")},
+    "premarket-briefing": {"task": "app.tasks.send_premarket_briefing", "schedule": crontab(hour=13, minute=15)},
 }
 ```
 
----
-
-## Phase 9 — API Endpoints Summary
+## Full API Surface (Target, end of Phase 2)
 
 ```
 POST   /api/auth/login                → returns JWT
@@ -895,94 +651,70 @@ GET    /api/trades/:id                → single trade with agent analysis
 PUT    /api/trades/:id                → update trade
 DELETE /api/trades/:id                → delete trade
 GET    /api/trades/calendar           → per-day summary for calendar view
-GET    /api/trades/stats              → aggregate stats (win rate, expectancy, etc.)
+GET    /api/trades/stats              → aggregate stats
 
-POST   /api/agents/chat               → streaming AI Coach Q&A
+POST   /api/agents/chat               → streaming AI Coach Q&A          (Phase 2)
 POST   /api/agents/analyze            → run full agent pipeline on a trade
 GET    /api/agents/alerts             → unread tilt/gap/limit alerts
 
-GET    /api/brokers                   → list connected brokers
-POST   /api/brokers/connect           → connect a broker (starts OAuth)
-DELETE /api/brokers/:id               → disconnect broker
-POST   /api/brokers/:id/sync          → manual sync
+GET    /api/brokers                   → list connected brokers          (Phase 2)
+POST   /api/brokers/connect           → connect a broker (starts OAuth) (Phase 2)
+DELETE /api/brokers/:id               → disconnect broker               (Phase 2)
+POST   /api/brokers/:id/sync          → manual sync                     (Phase 2)
 
 GET    /api/settings                  → get user settings
 PUT    /api/settings                  → update settings
-POST   /api/settings/upload-chart     → upload chart to S3, returns URL
+POST   /api/settings/upload-chart     → upload chart, returns URL
 
-GET    /api/reports/weekly            → latest weekly report
-GET    /api/reports/monthly           → monthly report
+GET    /api/reports/weekly            → latest weekly report            (Phase 2)
+GET    /api/reports/monthly           → monthly report                 (Phase 2)
 ```
 
----
-
-## Phase 10 — Deployment Checklist
+## Deployment Checklist (Target, Sprint 5)
 
 ```bash
-# 1. Set environment variables
 cp .env.example .env
-# Fill in: DATABASE_URL, REDIS_URL, ANTHROPIC_API_KEY,
-#          JWT_SECRET, AWS_ACCESS_KEY, BENZINGA_API_KEY, etc.
+# Fill in: DATABASE_URL, REDIS_URL, ANTHROPIC_API_KEY, JWT_SECRET, etc.
 
-# 2. Run database migrations
 alembic upgrade head
 
-# 3. Start backend
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
-# 4. Start Celery worker + beat
-celery -A app.tasks worker --loglevel=info
-celery -A app.tasks beat   --loglevel=info
-
-# 5. Deploy frontend (static)
-# Update js/app.js API base URL from '' to 'https://api.yourdomain.com'
-# Deploy pages/ folder to Vercel or Netlify
-
-# 6. LangSmith (optional but recommended)
-export LANGCHAIN_TRACING_V2=true
-export LANGCHAIN_API_KEY=your_langsmith_key
+# Deploy pages/ folder to Vercel
+# Update js/app.js API base URL from '' to the Railway production URL
 ```
 
----
-
-## Key Dependencies
+## Key Dependencies (Full Vision — not all installed yet)
 
 ```txt
-# requirements.txt
-fastapi==0.115.0
-uvicorn[standard]==0.30.0
-sqlalchemy==2.0.35
-alembic==1.13.0
-psycopg2-binary==2.9.9
-pgvector==0.3.2
-redis==5.0.8
-celery==5.4.0
+fastapi
+uvicorn[standard]
+sqlalchemy
+alembic
+psycopg2-binary
+pgvector          # Phase 2
+redis
+celery            # Phase 2
 
-anthropic==0.34.0
-langchain==0.3.0
-langgraph==0.2.0
-langsmith==0.1.0
-mem0ai==0.1.0
-openai==1.50.0          # for chart vision fallback
+anthropic
+langchain         # Phase 2 (multi-agent orchestration beyond Journal Analyst/Strategy Coach)
+langgraph
+langsmith         # Phase 2
+mem0ai            # Phase 2
+openai            # Phase 2, chart vision fallback
 
-python-jose[cryptography]==3.3.0  # JWT
-bcrypt==4.2.0
-python-multipart==0.0.12          # file uploads
-httpx==0.27.0
-boto3==1.35.0                     # S3 chart uploads
-ib_insync==0.9.86                 # IBKR broker
+python-jose[cryptography]
+bcrypt
+python-multipart
+httpx
+boto3             # Phase 2, if S3 is used instead of Supabase Storage
+ib_insync         # Phase 2, IBKR broker
 ```
-
----
 
 ## Security Notes
 
-- **Never** store raw API keys in the DB — encrypt broker credentials with AES-256 before storage
+- **Never** store raw API keys in the DB — encrypt broker credentials with AES-256 before storage (Phase 2)
 - Use **Row-Level Security (RLS)** in Supabase so users can only access their own rows
-- Rate-limit the `/api/agents/chat` endpoint — LLM calls are expensive
-- Validate all file uploads (chart images) for type and size before passing to vision model
+- Rate-limit the `/api/agents/chat` endpoint once it exists — LLM calls are expensive
+- Validate all file uploads (chart images) for type and size before passing to a vision model
 - Use **HTTPS only** in production — set `secure=True` on all cookies
-
----
-
-*Built with FastAPI · LangGraph · PostgreSQL/TimescaleDB · pgvector · Claude Sonnet 4.6*
