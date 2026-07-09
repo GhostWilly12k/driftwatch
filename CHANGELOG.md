@@ -8,6 +8,10 @@
 - `app/core/security.py`: bcrypt `hash_password` / `verify_password` helpers (shared with T-015 login)
 - `POST /api/auth/register` (T-014): creates a user, hashes password with bcrypt, rejects duplicate emails with 409 `EMAIL_TAKEN`
 - `tests/test_auth_register.py`: 6 unit tests covering success, bcrypt hashing, duplicate email, and validation errors (mocked DB session)
+- `app/core/security.py`: `create_access_token` — issues a signed JWT (30-day expiry via `JWT_EXPIRE_MINUTES`) using `python-jose`
+- `app/schemas.py`: `LoginRequest`, `TokenResponse` Pydantic schemas
+- `POST /api/auth/login` (T-015): verifies email/password against the stored bcrypt hash, returns a JWT; unknown email and wrong password return an identical 401 `INVALID_CREDENTIALS` response to prevent user enumeration
+- `tests/test_auth_login.py`: 6 unit tests covering successful login + JWT claim contents, wrong password, unknown email, enumeration-safety (identical error bodies), and validation errors (mocked DB session)
 
 ### Fixed
 - `app/routers/__inti__.py` typo'd filename corrected to `__init__.py`

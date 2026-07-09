@@ -50,3 +50,23 @@ class UserRead(BaseModel):
     plan: str
     avatar_url: str | None = None
     created_at: datetime
+
+
+class LoginRequest(BaseModel):
+    """Payload for POST /api/auth/login (T-015)."""
+
+    email: EmailStr
+    password: str
+
+
+class TokenResponse(BaseModel):
+    """
+    Response for POST /api/auth/login (T-015).
+
+    expires_in is seconds-until-expiry, so the client can schedule a
+    re-login/refresh prompt without needing to decode the JWT itself.
+    """
+
+    access_token: str
+    token_type: str = "bearer"
+    expires_in: int

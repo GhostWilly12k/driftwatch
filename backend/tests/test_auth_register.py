@@ -11,6 +11,7 @@ Run from backend/:
     pytest tests/test_auth_register.py
 """
 import uuid
+from collections.abc import Generator
 from datetime import UTC, datetime
 from unittest.mock import MagicMock
 
@@ -41,7 +42,7 @@ def mock_db() -> MagicMock:
 
 
 @pytest.fixture
-def client(mock_db: MagicMock) -> TestClient:
+def client(mock_db: MagicMock) -> Generator[TestClient, None, None]:
     def _get_db():
         yield mock_db
 

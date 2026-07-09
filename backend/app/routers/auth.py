@@ -1,14 +1,15 @@
-from typing import Annotated
+from typing import Annotated, cast
 
 from fastapi import APIRouter, Depends, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.core.db import get_db
-from app.core.exceptions import ConflictError
-from app.core.security import hash_password
+from app.core.exceptions import ConflictError, UnauthorizedError
+from app.core.security import create_access_token, hash_password, verify_password
 from app.models import User
-from app.schemas import UserCreate, UserRead
+from app.schemas import LoginRequest, TokenResponse, UserCreate, UserRead
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -50,3 +51,31 @@ def register(payload: UserCreate, db: DbSession) -> User:
     db.refresh(user)
 
     return user
+
+
+@router.post("/login", response_model=TokenResponse)
+def login(payload: LoginRequest, db: DbSession) -> TokenResponse:
+    """
+    Authenticate a user and issue a JWT (US-002, T-015).
+
+    Returns a 30-day access token (JWT_EXPIRE_MINUTES) on success. On
+    failure — whether the email doesn't exist or the password is wrong —
+    the response is identical (401, INVALID_CREDENTIALS) so a caller can't
+    use this endpoint to enumerate registered email addresses.
+    """
+    user = db.execute(
+        select(User).where(User.email == payload.email)
+    ).scalar_one_or_none()
+
+    if user is None or not verify_password(payload.password, cast(str, user.password_hash)):
+        raise UnauthorizedError(
+            "Invalid email or password.",
+            code="INVALID_CREDENTIALS",
+        )
+
+    access_token = create_access_token(subject=str(user.id))
+
+    return TokenResponse(
+        access_token=access_token,
+        expires_in=settings.JWT_EXPIRE_MINUTES * 60,
+    )

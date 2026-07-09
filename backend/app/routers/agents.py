@@ -4,7 +4,7 @@ router = APIRouter(prefix="/api/agents", tags=["agents"])
 
 
 @router.get("/ping")
-async def ping():
+async def ping() -> dict[str, str]:
     """Stub endpoint to confirm the router is wired up. Replace with real
     Journal Analyst (Sprint 4) and Strategy Coach (Sprint 5) endpoints,
     including GET /api/agents/alerts (T-066)."""

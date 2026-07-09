@@ -39,6 +39,6 @@ app.include_router(agents.router)
 
 
 @app.get("/health", tags=["meta"])
-async def health_check():
+async def health_check() -> dict[str, str]:
     """Basic liveness check — useful for Railway's health check config (T-070)."""
     return {"status": "ok", "environment": settings.ENVIRONMENT}

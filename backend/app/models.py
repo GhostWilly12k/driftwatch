@@ -5,6 +5,7 @@ from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.sql import func
 
+
 class Base(DeclarativeBase):
     pass
 
