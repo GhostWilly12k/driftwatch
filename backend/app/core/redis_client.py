@@ -16,11 +16,24 @@ from app.core.config import settings
 
 BLOCKLIST_PREFIX = "blocklist:"
 
+# Without explicit timeouts, redis-py will hang indefinitely on a bad
+# connection (wrong host, firewalled port, TLS mismatch, etc.) instead of
+# raising — which turns a Redis outage into a request that never
+# completes. 5s is generous for Upstash's normal latency but still fails
+# fast enough to be debuggable.
+_CONNECT_TIMEOUT_SECONDS = 5
+_SOCKET_TIMEOUT_SECONDS = 5
+
 
 @lru_cache
 def get_redis() -> redis.Redis:
     """Return a cached Redis client built from settings.REDIS_URL (Upstash)."""
-    return redis.from_url(settings.REDIS_URL, decode_responses=True)
+    return redis.from_url(
+        settings.REDIS_URL,
+        decode_responses=True,
+        socket_connect_timeout=_CONNECT_TIMEOUT_SECONDS,
+        socket_timeout=_SOCKET_TIMEOUT_SECONDS,
+    )
 
 
 def blocklist_token(token: str, ttl_seconds: int) -> None:
@@ -43,3 +56,4 @@ def is_token_blocklisted(token: str) -> bool:
     """Check whether a token has been logged out. Used by get_current_user (T-018)."""
     client = get_redis()
     return bool(client.exists(f"{BLOCKLIST_PREFIX}{token}"))
+

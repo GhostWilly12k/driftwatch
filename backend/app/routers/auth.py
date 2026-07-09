@@ -2,12 +2,13 @@ from datetime import UTC, datetime
 from typing import Annotated, cast
 
 from fastapi import APIRouter, Depends, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.db import get_db
+from app.core.deps import CurrentUser, bearer_scheme
 from app.core.exceptions import ConflictError, UnauthorizedError
 from app.core.redis_client import blocklist_token
 from app.core.security import (
@@ -20,11 +21,6 @@ from app.models import User
 from app.schemas import LoginRequest, MessageResponse, TokenResponse, UserCreate, UserRead
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
-
-# HTTPBearer extracts and validates the "Authorization: Bearer <token>"
-# header for us; auto_error=True means a missing/malformed header short-
-# circuits with a 401 "Not authenticated" before the endpoint body runs.
-bearer_scheme = HTTPBearer(auto_error=True)
 
 
 @router.get("/ping")
@@ -108,8 +104,8 @@ def logout(
     would have anyway — no cleanup job needed.
 
     A malformed, unsigned, or already-expired token is rejected with 401
-    before we ever touch Redis. get_current_user (T-018) is what will
-    consult this blocklist on every subsequent authenticated request.
+    before we ever touch Redis. get_current_user (T-018) consults this
+    blocklist on every subsequent authenticated request (e.g. GET /me).
     """
     token = credentials.credentials
     payload = decode_access_token(token)
@@ -124,3 +120,16 @@ def logout(
     blocklist_token(token, ttl_seconds)
 
     return MessageResponse(message="Logged out successfully.")
+
+
+@router.get("/me", response_model=UserRead)
+def get_me(current_user: CurrentUser) -> User:
+    """
+    Return the currently authenticated user (US-004, T-017).
+
+    This endpoint is a thin pass-through: all the real work — validating
+    the JWT, checking the Redis blocklist, and resolving the user row —
+    happens in get_current_user (T-018). A 401 here means the frontend's
+    CT.auth.requireAuth() (T-021) should redirect to the login page.
+    """
+    return current_user

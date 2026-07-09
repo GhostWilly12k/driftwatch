@@ -17,9 +17,16 @@
 - `app/schemas.py`: `MessageResponse` schema
 - `POST /api/auth/logout` (T-016): adds the caller's JWT to a Redis blocklist with a TTL matching its remaining lifetime, so the entry self-expires with no cleanup job needed
 - `tests/test_auth_logout.py`: 5 unit tests covering successful logout + TTL calculation, missing/malformed Authorization header, expired token, and wrong auth scheme (Redis mocked)
+- `app/core/deps.py`: `get_current_user` FastAPI dependency (T-018) — resolves the current `User` from a bearer JWT by decoding it, checking the Redis blocklist, and validating the `sub` claim against the DB; exposes a reusable `CurrentUser` type for future protected routes
+- `GET /api/auth/me` (T-017): returns the authenticated user's profile; 401s if the token is missing, malformed, expired, blocklisted (`TOKEN_REVOKED`), has a non-UUID subject (`INVALID_TOKEN`), or no longer maps to a user (`USER_NOT_FOUND`)
+- `tests/test_auth_me.py`: 8 unit tests covering success, missing/malformed/expired/wrong-scheme auth, blocklisted tokens, and deleted users (Redis and DB mocked)
+
+### Changed
+- `app/core/redis_client.py`: added `socket_connect_timeout`/`socket_timeout` (5s) to the Redis client — a connectivity problem now fails fast with a clear error instead of hanging the request indefinitely
 
 ### Fixed
 - `app/routers/__inti__.py` typo'd filename corrected to `__init__.py`
+
 
 ## [0.1.0] - 2026-07-07 (Sprint 0)
 
