@@ -5,6 +5,7 @@ services should import `settings` from here rather than calling
 os.getenv() directly.
 """
 from functools import lru_cache
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 

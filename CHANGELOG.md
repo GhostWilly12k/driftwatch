@@ -4,6 +4,10 @@
 - User model extended with `password_hash` column (migration `8f2a1c9d4b6e`, chained after `5b7e604fe446`)
 - `app/schemas.py`: `UserCreate`, `UserRead` Pydantic schemas
 - `tests/test_user_schemas.py`: 5 unit tests covering validation and ORM-to-schema mapping
+- `app/core/db.py`: SQLAlchemy engine, `SessionLocal`, and `get_db` FastAPI dependency
+- `app/core/security.py`: bcrypt `hash_password` / `verify_password` helpers (shared with T-015 login)
+- `POST /api/auth/register` (T-014): creates a user, hashes password with bcrypt, rejects duplicate emails with 409 `EMAIL_TAKEN`
+- `tests/test_auth_register.py`: 6 unit tests covering success, bcrypt hashing, duplicate email, and validation errors (mocked DB session)
 
 ### Fixed
 - `app/routers/__inti__.py` typo'd filename corrected to `__init__.py`

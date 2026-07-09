@@ -1,22 +1,21 @@
-import sys
 import os
+import sys
 
 # Inject the root directory of your project into the Python path
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
+import os
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from dotenv import load_dotenv
+from sqlalchemy import engine_from_config, pool
 
 from alembic import context
-
-import os
-from dotenv import load_dotenv
+from app.models import Base
 
 load_dotenv()
 
-from app.models import Base,User,UserSettings,Trade
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

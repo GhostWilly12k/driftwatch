@@ -10,15 +10,33 @@ Naming convention used throughout this file and future schema additions:
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
+
+# bcrypt silently truncates anything past 72 bytes, which means two different
+# passwords that share the same first 72 bytes would hash identically and
+# both would authenticate. Capping length here (rather than truncating
+# server-side) makes that failure mode impossible instead of just hidden.
+BCRYPT_MAX_BYTES = 72
 
 
 class UserCreate(BaseModel):
     """Payload for POST /api/auth/register (T-014)."""
 
     email: EmailStr
-    password: str = Field(min_length=8, max_length=128)
+    password: str = Field(min_length=8, max_length=BCRYPT_MAX_BYTES)
     name: str | None = None
+
+    @field_validator("password")
+    @classmethod
+    def password_must_fit_bcrypt(cls, value: str) -> str:
+        # max_length above already caps character count, but multi-byte
+        # UTF-8 characters (emoji, accents, etc.) can exceed 72 bytes with
+        # fewer than 72 characters, so check the actual encoded length too.
+        if len(value.encode("utf-8")) > BCRYPT_MAX_BYTES:
+            raise ValueError(
+                f"Password must be at most {BCRYPT_MAX_BYTES} bytes when UTF-8 encoded."
+            )
+        return value
 
 
 class UserRead(BaseModel):

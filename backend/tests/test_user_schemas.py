@@ -5,7 +5,7 @@ Run from backend/:
     pytest tests/test_user_schemas.py
 """
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 from pydantic import ValidationError
@@ -44,7 +44,7 @@ def test_user_read_from_attributes():
         name = "Willy"
         plan = "starter"
         avatar_url = None
-        created_at = datetime.now(timezone.utc)
+        created_at = datetime.now(UTC)
         password_hash = "should-never-appear"
 
     read_model = UserRead.model_validate(FakeORMUser())

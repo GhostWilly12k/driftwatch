@@ -12,3 +12,6 @@ psycopg2-binary
 python-jose
 bcrypt
 pytest
+httpx2
+ruff
+mypy

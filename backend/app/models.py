@@ -1,10 +1,12 @@
-from sqlalchemy import Column, String, Numeric, Integer, Boolean, ForeignKey, TIMESTAMP
-from sqlalchemy.dialects.postgresql import UUID, JSONB
-from sqlalchemy.sql import func
-from sqlalchemy.orm import declarative_base
 import uuid
 
-Base = declarative_base()
+from sqlalchemy import TIMESTAMP, Column, ForeignKey, Integer, Numeric, String
+from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.sql import func
+
+class Base(DeclarativeBase):
+    pass
 
 class User(Base):
     __tablename__ = "users"

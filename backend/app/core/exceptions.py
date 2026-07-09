@@ -60,7 +60,7 @@ def _error_body(code: str, message: str) -> dict:
 
 def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(AppError)
-    async def app_error_handler(request: Request, exc: AppError):
+    async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
         logger.warning("AppError on %s %s: %s", request.method, request.url.path, exc.message)
         return JSONResponse(
             status_code=exc.status_code,
@@ -68,7 +68,7 @@ def register_exception_handlers(app: FastAPI) -> None:
         )
 
     @app.exception_handler(RequestValidationError)
-    async def validation_error_handler(request: Request, exc: RequestValidationError):
+    async def validation_error_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
         logger.info("Validation error on %s %s: %s", request.method, request.url.path, exc.errors())
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -76,7 +76,7 @@ def register_exception_handlers(app: FastAPI) -> None:
         )
 
     @app.exception_handler(Exception)
-    async def unhandled_exception_handler(request: Request, exc: Exception):
+    async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
         # Last-resort catch-all so a bug never returns a raw 500 traceback to the client.
         logger.exception("Unhandled exception on %s %s", request.method, request.url.path)
         return JSONResponse(
