@@ -1,17 +1,30 @@
+from datetime import UTC, datetime
 from typing import Annotated, cast
 
 from fastapi import APIRouter, Depends, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.db import get_db
 from app.core.exceptions import ConflictError, UnauthorizedError
-from app.core.security import create_access_token, hash_password, verify_password
+from app.core.redis_client import blocklist_token
+from app.core.security import (
+    create_access_token,
+    decode_access_token,
+    hash_password,
+    verify_password,
+)
 from app.models import User
-from app.schemas import LoginRequest, TokenResponse, UserCreate, UserRead
+from app.schemas import LoginRequest, MessageResponse, TokenResponse, UserCreate, UserRead
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
+
+# HTTPBearer extracts and validates the "Authorization: Bearer <token>"
+# header for us; auto_error=True means a missing/malformed header short-
+# circuits with a 401 "Not authenticated" before the endpoint body runs.
+bearer_scheme = HTTPBearer(auto_error=True)
 
 
 @router.get("/ping")
@@ -79,3 +92,35 @@ def login(payload: LoginRequest, db: DbSession) -> TokenResponse:
         access_token=access_token,
         expires_in=settings.JWT_EXPIRE_MINUTES * 60,
     )
+
+
+@router.post("/logout", response_model=MessageResponse)
+def logout(
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(bearer_scheme)],
+) -> MessageResponse:
+    """
+    Invalidate the caller's JWT server-side (US-003, T-016).
+
+    JWTs are stateless by design, so "logging out" means adding this
+    specific token to a Redis blocklist rather than deleting anything.
+    The blocklist entry's TTL is set to the token's own remaining
+    lifetime (exp - now), so it self-expires exactly when the token
+    would have anyway — no cleanup job needed.
+
+    A malformed, unsigned, or already-expired token is rejected with 401
+    before we ever touch Redis. get_current_user (T-018) is what will
+    consult this blocklist on every subsequent authenticated request.
+    """
+    token = credentials.credentials
+    payload = decode_access_token(token)
+
+    exp = payload.get("exp")
+    if exp is None:
+        raise UnauthorizedError("Token is missing an expiry claim.", code="INVALID_TOKEN")
+
+    now_ts = int(datetime.now(UTC).timestamp())
+    ttl_seconds = int(exp) - now_ts
+
+    blocklist_token(token, ttl_seconds)
+
+    return MessageResponse(message="Logged out successfully.")

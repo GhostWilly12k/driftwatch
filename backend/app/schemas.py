@@ -70,3 +70,9 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     expires_in: int
+
+
+class MessageResponse(BaseModel):
+    """Generic status message — used by POST /api/auth/logout (T-016)."""
+
+    message: str

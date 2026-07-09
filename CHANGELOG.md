@@ -12,6 +12,11 @@
 - `app/schemas.py`: `LoginRequest`, `TokenResponse` Pydantic schemas
 - `POST /api/auth/login` (T-015): verifies email/password against the stored bcrypt hash, returns a JWT; unknown email and wrong password return an identical 401 `INVALID_CREDENTIALS` response to prevent user enumeration
 - `tests/test_auth_login.py`: 6 unit tests covering successful login + JWT claim contents, wrong password, unknown email, enumeration-safety (identical error bodies), and validation errors (mocked DB session)
+- `app/core/redis_client.py`: cached Redis client (`get_redis`) and JWT blocklist helpers `blocklist_token` / `is_token_blocklisted` (Upstash)
+- `app/core/security.py`: `decode_access_token` — validates JWT signature and expiry, normalising `jose.JWTError` into a 401 `INVALID_TOKEN` response
+- `app/schemas.py`: `MessageResponse` schema
+- `POST /api/auth/logout` (T-016): adds the caller's JWT to a Redis blocklist with a TTL matching its remaining lifetime, so the entry self-expires with no cleanup job needed
+- `tests/test_auth_logout.py`: 5 unit tests covering successful logout + TTL calculation, missing/malformed Authorization header, expired token, and wrong auth scheme (Redis mocked)
 
 ### Fixed
 - `app/routers/__inti__.py` typo'd filename corrected to `__init__.py`
