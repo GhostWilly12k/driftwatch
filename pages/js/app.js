@@ -35,7 +35,7 @@ const CT = {
     CT.setTheme(current === 'dark' ? 'light' : 'dark');
   },
 
-  // ── AUTH (T-019: login wired to the real API; logout/guard still follow in T-020/T-021)
+  // ── AUTH (T-019/T-020: login + logout wired to the real API; guard still follows in T-021)
   auth: {
     SESSION_KEY: 'ct-session',
 
@@ -99,9 +99,24 @@ const CT = {
       return { ok: true };
     },
 
-    logout() {
-      // TODO (T-020): call POST /api/auth/logout with the bearer token
-      // before clearing local storage, so the token is blocklisted server-side.
+    // POST /api/auth/logout (T-016) — blocklists the JWT server-side so a
+    // copied/leaked token can't be replayed after the user has "logged out".
+    // The local session is cleared and the redirect happens regardless of
+    // whether the network call succeeds: if there's no token, the server is
+    // unreachable, or the token is already expired/blocklisted, the user's
+    // intent is still to be signed out on this device.
+    async logout() {
+      const token = CT.auth.getToken();
+      if (token) {
+        try {
+          await fetch(`${CT.config.API_BASE_URL}/api/auth/logout`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}` },
+          });
+        } catch (err) {
+          // Network error / server down — proceed with local logout anyway.
+        }
+      }
       localStorage.removeItem(CT.auth.SESSION_KEY);
       window.location.href = 'login.html';
     },

@@ -22,7 +22,8 @@
 - `tests/test_auth_me.py`: 8 unit tests covering success, missing/malformed/expired/wrong-scheme auth, blocklisted tokens, and deleted users (Redis and DB mocked)
 - `pages/js/app.js`: `CT.config.API_BASE_URL` (hardcoded until T-071 wires the Railway production URL)
 - `CT.auth.login` (T-019): wired to `POST /api/auth/login`, then `GET /api/auth/me`, replacing the always-succeeds localStorage mock; returns `{ ok, error }` so the UI can surface real authentication failures
-- `CT.auth.getToken()`: reads the JWT out of the stored session, for upcoming protected requests (T-020/T-021/T-034)
+- `CT.auth.getToken()`: reads the JWT out of the stored session, for upcoming protected requests (T-021/T-034)
+- `CT.auth.logout` (T-020): wired to `POST /api/auth/logout` with the bearer token, blocklisting the JWT server-side before clearing the local session; falls back to a local-only logout (session cleared, redirect to login) if the request fails, so sign-out never depends on server reachability
 - `pages/login.html`: async `handleLogin` shows the API's actual error message on failed login and disables the submit button while the request is in flight
 
 ### Changed
