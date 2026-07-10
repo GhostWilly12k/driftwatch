@@ -20,8 +20,13 @@
 - `app/core/deps.py`: `get_current_user` FastAPI dependency (T-018) — resolves the current `User` from a bearer JWT by decoding it, checking the Redis blocklist, and validating the `sub` claim against the DB; exposes a reusable `CurrentUser` type for future protected routes
 - `GET /api/auth/me` (T-017): returns the authenticated user's profile; 401s if the token is missing, malformed, expired, blocklisted (`TOKEN_REVOKED`), has a non-UUID subject (`INVALID_TOKEN`), or no longer maps to a user (`USER_NOT_FOUND`)
 - `tests/test_auth_me.py`: 8 unit tests covering success, missing/malformed/expired/wrong-scheme auth, blocklisted tokens, and deleted users (Redis and DB mocked)
+- `pages/js/app.js`: `CT.config.API_BASE_URL` (hardcoded until T-071 wires the Railway production URL)
+- `CT.auth.login` (T-019): wired to `POST /api/auth/login`, then `GET /api/auth/me`, replacing the always-succeeds localStorage mock; returns `{ ok, error }` so the UI can surface real authentication failures
+- `CT.auth.getToken()`: reads the JWT out of the stored session, for upcoming protected requests (T-020/T-021/T-034)
+- `pages/login.html`: async `handleLogin` shows the API's actual error message on failed login and disables the submit button while the request is in flight
 
 ### Changed
+- `pages/login.html`: removed the "any email/password works" demo hint now that credentials are actually validated; disabled the Google/GitHub OAuth buttons (out of Phase 1 scope) rather than letting them silently post fake credentials to the real login endpoint
 - `app/core/redis_client.py`: added `socket_connect_timeout`/`socket_timeout` (5s) to the Redis client — a connectivity problem now fails fast with a clear error instead of hanging the request indefinitely
 
 ### Fixed

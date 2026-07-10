@@ -6,6 +6,12 @@
 /* ── THEME ── */
 const CT = {
 
+  // ── Config
+  // Hardcoded until T-071 swaps this for the Railway production URL.
+  config: {
+    API_BASE_URL: 'http://localhost:8000',
+  },
+
   // ── Init (call on every page load)
   init() {
     const saved = localStorage.getItem('ct-theme') || 'dark';
@@ -29,7 +35,7 @@ const CT = {
     CT.setTheme(current === 'dark' ? 'light' : 'dark');
   },
 
-  // ── AUTH (mock — replace with real JWT/Supabase calls)
+  // ── AUTH (T-019: login wired to the real API; logout/guard still follow in T-020/T-021)
   auth: {
     SESSION_KEY: 'ct-session',
 
@@ -37,18 +43,65 @@ const CT = {
       return !!localStorage.getItem(CT.auth.SESSION_KEY);
     },
 
-    login(email, password) {
-      // TODO: replace with real API call
-      // POST /api/auth/login  →  { token, user }
-      if (email && password) {
-        const fakeSession = { email, name: 'Jordan Dex', plan: 'Pro', avatar: 'JD' };
-        localStorage.setItem(CT.auth.SESSION_KEY, JSON.stringify(fakeSession));
-        return true;
+    // POST /api/auth/login (T-015), then GET /api/auth/me (T-017) to get
+    // the profile fields the UI displays (name/plan/avatar) — the login
+    // response itself only carries the JWT, not the user record.
+    // Returns { ok: true } or { ok: false, error: string } so login.html
+    // can show a real error message instead of the old always-succeeds mock.
+    async login(email, password) {
+      let loginRes;
+      try {
+        loginRes = await fetch(`${CT.config.API_BASE_URL}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+      } catch (err) {
+        return { ok: false, error: 'Could not reach the server. Please try again.' };
       }
-      return false;
+
+      if (!loginRes.ok) {
+        let message = 'Invalid email or password.';
+        try {
+          const body = await loginRes.json();
+          if (body?.error?.message) message = body.error.message;
+        } catch (err) {
+          // Non-JSON error body — fall back to the default message above.
+        }
+        return { ok: false, error: message };
+      }
+
+      const { access_token: token, expires_in: expiresIn } = await loginRes.json();
+
+      // Best-effort profile fetch — login has already succeeded even if
+      // this fails, so fall back to deriving display fields from the email.
+      let profile = { email };
+      try {
+        const meRes = await fetch(`${CT.config.API_BASE_URL}/api/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (meRes.ok) profile = await meRes.json();
+      } catch (err) {
+        // Ignore — session still gets created below with the email fallback.
+      }
+
+      const displayName = profile.name || profile.email || email;
+      const session = {
+        token,
+        expiresIn,
+        loggedInAt: Date.now(),
+        email: profile.email || email,
+        name: displayName,
+        plan: profile.plan || 'starter',
+        avatar: displayName.slice(0, 2).toUpperCase(),
+      };
+      localStorage.setItem(CT.auth.SESSION_KEY, JSON.stringify(session));
+      return { ok: true };
     },
 
     logout() {
+      // TODO (T-020): call POST /api/auth/logout with the bearer token
+      // before clearing local storage, so the token is blocklisted server-side.
       localStorage.removeItem(CT.auth.SESSION_KEY);
       window.location.href = 'login.html';
     },
@@ -56,6 +109,11 @@ const CT = {
     getUser() {
       const s = localStorage.getItem(CT.auth.SESSION_KEY);
       return s ? JSON.parse(s) : null;
+    },
+
+    getToken() {
+      const s = CT.auth.getUser();
+      return s ? s.token : null;
     },
 
     // Redirect if not logged in (call on protected pages)
