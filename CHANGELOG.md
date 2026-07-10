@@ -25,6 +25,7 @@
 - `CT.auth.getToken()`: reads the JWT out of the stored session, for upcoming protected requests (T-021/T-034)
 - `CT.auth.logout` (T-020): wired to `POST /api/auth/logout` with the bearer token, blocklisting the JWT server-side before clearing the local session; falls back to a local-only logout (session cleared, redirect to login) if the request fails, so sign-out never depends on server reachability
 - `pages/login.html`: async `handleLogin` shows the API's actual error message on failed login and disables the submit button while the request is in flight
+- `CT.auth.requireAuth()` (T-021): now revalidates the session against `GET /api/auth/me` instead of trusting the local `ct-session` flag alone. No local session → instant redirect to `login.html` (no network wait). A confirmed 401 (expired JWT, blocklisted token from T-016, or deleted account) clears the session and redirects. A network/server-unreachable error fails open, leaving an already-valid session in place rather than logging the user out.
 
 ### Changed
 - `pages/login.html`: removed the "any email/password works" demo hint now that credentials are actually validated; disabled the Google/GitHub OAuth buttons (out of Phase 1 scope) rather than letting them silently post fake credentials to the real login endpoint

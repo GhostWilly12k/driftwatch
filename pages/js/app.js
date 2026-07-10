@@ -35,7 +35,7 @@ const CT = {
     CT.setTheme(current === 'dark' ? 'light' : 'dark');
   },
 
-  // ── AUTH (T-019/T-020: login + logout wired to the real API; guard still follows in T-021)
+  // ── AUTH (T-019/T-020/T-021: login, logout, and the page guard all wired to the real API)
   auth: {
     SESSION_KEY: 'ct-session',
 
@@ -131,10 +131,46 @@ const CT = {
       return s ? s.token : null;
     },
 
-    // Redirect if not logged in (call on protected pages)
-    requireAuth() {
+    // Redirect if not logged in (call on protected pages).
+    //
+    // T-021: a locally-present session is no longer taken at face value.
+    // Two checks happen:
+    //   1. Fast, synchronous path — no session in localStorage at all means
+    //      there's nothing to validate, so redirect immediately without
+    //      waiting on a network round-trip (keeps the old instant-redirect
+    //      behaviour for the common "never logged in" case).
+    //   2. Async revalidation — if a session exists, confirm it's still
+    //      good by calling GET /api/auth/me (T-017), which is the same
+    //      endpoint get_current_user (T-018) backs. This catches an
+    //      expired JWT, a token blocklisted by logout from another tab/
+    //      device (T-016), or a deleted account — none of which the local
+    //      localStorage flag alone can detect.
+    //
+    // A network failure (server unreachable) does NOT log the user out —
+    // that's not evidence the token is invalid, only that we couldn't ask.
+    // Only an explicit 401 from the server clears the session and redirects.
+    async requireAuth() {
       if (!CT.auth.isLoggedIn()) {
         window.location.href = 'login.html';
+        return;
+      }
+
+      const token = CT.auth.getToken();
+      try {
+        const meRes = await fetch(`${CT.config.API_BASE_URL}/api/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (meRes.status === 401) {
+          localStorage.removeItem(CT.auth.SESSION_KEY);
+          window.location.href = 'login.html';
+        }
+        // Any other non-network outcome (200, or a non-401 error) leaves
+        // the existing session in place — only a confirmed 401 means the
+        // token itself is invalid.
+      } catch (err) {
+        // Server unreachable — fail open rather than locking the user out
+        // of a page they were already validly authenticated for.
       }
     },
 
